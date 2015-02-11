@@ -1,0 +1,48 @@
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading clearfix">
+    Medlemmar
+    <button type="button" class="btn btn-primary pull-right" aria-label="Left Align" ui-sref="persons.edit">
+      Lägg till
+    </button>
+  </div>
+  <div class="panel-body">
+    <p>...</p>
+  </div>
+
+  <!-- Table -->
+  <table class="table" ng-table="tableParams" show-filter="true">
+  <!--
+    <tr>
+      <th>Id</th>
+      <th>Personnummer</th>
+      <th>Förnamn</th>
+      <th>Efternamn</th>
+      <th>E-post</th>
+      <th>Mobilnummer</th>
+      <th>Facebook</th>
+      <th>Twitter</th>
+      <th>AIK-Forum</th>
+      <th>Medlem sedan</th>
+      <th></th>
+    </tr>
+    -->
+    <tr ng-repeat="person in $data">
+      <td data-title="'Id'" ng-bind="person.id" sortable="id" filter="{'id': 'text'}"></td>
+      <td data-title="'Personnummer'" ng-bind="person.identification" sortable="identification"></td>
+      <td data-title="'Förnamn'" ng-bind="person.firstname"></td>
+      <td data-title="'Efternamn'" ng-bind="person.lastname"></td>
+      <td data-title="'E-post'" ng-bind="person.mailaddress"></td>
+      <td data-title="'Mobiltelefonnummer'" ng-bind="person.cellphone"></td>
+      <td data-title="'Facebook'" ng-bind="person.facebook"></td>
+      <td data-title="'Twitter'" ng-bind="person.twitter"></td>
+      <td data-title="'AIK-Forum'" ng-bind="person.aikforum"></td>
+      <td data-title="'Medlem sedan'" ng-bind="person.joindate"></td>
+      <td>
+        <button type="button" class="btn btn-default" aria-label="Left Align">
+          Redigera
+        </button>
+      </td>
+    </tr>
+  </table>
+</div>

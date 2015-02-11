@@ -1,0 +1,58 @@
+<form class="form-horizontal">
+  <div class="form-group">
+    <label>Id</label>
+    <input type="number" class="form-control" placeholder="Id" ng-model="person.id" readonly>
+    <label>Personnummer</label>
+    <input type="text" class="form-control" placeholder="Personnummer" ng-model="person.identification">
+    <label>Förnamn</label>
+    <input type="text" class="form-control" placeholder="Förnamn" ng-model="person.firstname">
+    <label>Efternamn</label>
+    <input type="text" class="form-control" placeholder="Efternamn" ng-model="person.lastname">
+    <label>Namn</label>
+    <input type="text" class="form-control" placeholder="Namn" ng-bind="person.name" value="{{person.firstname}} {{person.lastname}}">
+    <label>Smeknamn</label>
+    <input type="text" class="form-control" placeholder="Smeknamn" ng-model="person.nickname">
+    <label>Kön</label>
+    <input type="text" class="form-control" placeholder="Kön" ng-model="person.gender_id">
+    <label>Användarnamn</label>
+    <input type="text" class="form-control" placeholder="Användarnamn" ng-model="person.username">
+    <label>Adress</label>
+    <input type="text" class="form-control" placeholder="Adress" ng-model="person.address1">
+    <label>Adress 2</label>
+    <input type="text" class="form-control" placeholder="Adress 2" ng-model="person.address2">
+    <label>Postnummer</label>
+    <input type="text" class="form-control" placeholder="Postnummer" ng-model="person.zipcode">
+    <label>Stad</label>
+    <input type="text" class="form-control" placeholder="Stad" ng-model="person.city_id">
+    <label>Telefonnummer</label>
+    <input type="text" class="form-control" placeholder="Telefon" ng-model="person.telephone">
+    <label>Mobiltelefonnummer</label>
+    <input type="text" class="form-control" placeholder="Mobiltelefon" ng-model="person.cellphone">
+    <label>E-post</label>
+    <input type="email" class="form-control" placeholder="E-post" ng-model="person.mailaddress">
+    <label>AIK-Forum</label>
+    <input type="text" class="form-control" placeholder="AIK-Forum" ng-model="person.aikforum">
+    <label>Facebook</label>
+    <input type="text" class="form-control" placeholder="Facebook" ng-model="person.facebook">
+    <label>Twitter</label>
+    <input type="text" class="form-control" placeholder="Twitter" ng-model="person.twitter">
+    <label>Google</label>
+    <input type="text" class="form-control" placeholder="Google" ng-model="person.google">
+    <label>Födelsedag</label>
+    <input type="text" class="form-control" placeholder="Födelsedag" ng-model="person.birthdate">
+    <label>Medlem sedan</label>
+    <input type="text" class="form-control" placeholder="Medlem sedan" ng-model="person.joindate">
+    <label>Senaste betalning</label>
+    <input type="text" class="form-control" placeholder="Senaste betalning" ng-model="person.paiddate">
+    <label>Medlemskap utgår</label>
+    <input type="text" class="form-control" placeholder="Medlemskap utgår" ng-model="person.expiredate">
+    <label>Betalningsmetod</label>
+    <input type="text" class="form-control" placeholder="Betalningsmetod" ng-model="person.paymethod_id">
+    <label>Admin-nivå</label>
+    <input type="text" class="form-control" placeholder="Admin-nivå" ng-model="person.adminlevel_id">
+    <label>Kommentar</label>
+    <input type="text" class="form-control" placeholder="Kommentar" ng-model="person.comment">
+  </div>
+
+  <button type="submit" class="btn btn-default" ng-click="submit()">Skicka</button>
+</form>
