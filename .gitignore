@@ -5,4 +5,5 @@ bower_components/
 tmp
 .DS_Store
 .idea
-app/config.json
+app/config.js
+dist/config.js
