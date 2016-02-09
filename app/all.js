@@ -39450,12 +39450,13 @@ angular.module('askCrm.login', ['askCrm', 'ngCookies'])
 .controller('LoginWithTokenCtrl', ['$scope', '$http', '$stateParams', 'authorization', LoginWithTokenCtrl])
 function LoginWithTokenCtrl ($scope, $http, $state, $stateParams, Api, authorization) {
 
+  console.log('$stateParams', $stateParams);
   $http.defaults.headers.common['Authorization'] = 'Bearer: ' + $stateParams.token;
-
+console.log($http.defaults.headers.common['Authorization']);
   var user = Api.Users().get({id: 'me'}, function () {
     authorization.setTokenAndUser($stateParams.token, user);
 
-    $state.go('members.detail', {id: user.member_id});
+    $state.go('members.addPayment.step1', {id: user.member_id});
   });
 
 }
@@ -39539,74 +39540,6 @@ angular.module('askCrm.view2', ['ui.router'])
 .controller('View2Ctrl', [function() {
 
 }]);
-function MembersDetailCtrl ($scope, Api, member) {
-  $scope.paymentMethods = [];
-  $scope.member = member;
-
-  $scope.sendPaymentReminder = function(id) {
-    $scope.member.$sendPaymentReminder();
-  }
-
-  $scope.loadPaymentMethods = function() {
-    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
-      $scope.paymentMethods = data;
-    });
-  };
-
-  $scope.showPayMethod = function(payment) {
-    if(payment.group && $scope.groups.length) {
-      var selected = $filter('filter')($scope.groups, {id: member.group});
-      return selected.length ? selected[0].text : 'Not set';
-    } else {
-      return member.groupName || 'Not set';
-    }
-  };
-
-  $scope.addPayment = function () {
-    var today = new Date();
-
-    $scope.insertedPayment = {
-      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
-      amount: 0,
-      method: ''
-    }
-
-    $scope.member.payments.push($scope.insertedPayment);
-  }
-
-  $scope.savePayment = function (data) {
-    console.log('data', data);
-    data.member_id = member.id;
-    if (data.id) {
-      data.$update();
-    } else {
-      Api.Payments().save(data);
-    }
-  }
-}
-angular.module('askCrm.members.detail', [
-  'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-
-//  $urlRouterProvider.otherwise("/add-person");
-  $stateProvider
-    .state('members.detail', {
-      url: '/:id',
-      parent: 'members',
-      templateUrl: '/components/members/detail/members.detail.html',
-      controller: 'MembersDetailCtrl',
-      resolve: {
-        member: ['$stateParams', 'Api', function($stateParams, Api) {
-          return Api.Members().get($stateParams).$promise;
-        }]
-      }
-    })
-})
-
-.controller('MembersDetailCtrl', ['$scope', 'Api', 'member', MembersDetailCtrl])
-
 function MembersEditCtrl($scope, Api, member) {
   $scope.member = {};
   $scope.countries;
@@ -39743,55 +39676,74 @@ angular.module('askCrm.members.edit', [
     }
   };
 });
-function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
-  $scope.$watch('file', function () {
-    console.log('file change');
-    $scope.upload($scope.file);
-  });
+function MembersDetailCtrl ($scope, Api, member) {
+  $scope.paymentMethods = [];
+  $scope.member = member;
 
-  $scope.upload = function (file) {
-    if (!file) {
-      return;
-    }
+  $scope.sendPaymentReminder = function(id) {
+    $scope.member.$sendPaymentReminder();
+  }
 
-    if (!file.$error) {
-      Upload.upload({
-        url: 'http://ask-crm-api.app/api/v1/members/import',
-        data: {
-          file: file  
-        }
-      }).then(function (resp) {
-          $timeout(function() {
-              $scope.log = 'file: ' +
-              resp.config.data.file.name +
-              ', Response: ' + JSON.stringify(resp.data) +
-              '\n' + $scope.log;
-          });
-      }, null, function (evt) {
-          var progressPercentage = parseInt(100.0 *
-              evt.loaded / evt.total);
-          $scope.log = 'progress: ' + progressPercentage + 
-            '% ' + evt.config.data.file.name + '\n' + 
-            $scope.log;
-      });
+  $scope.loadPaymentMethods = function() {
+    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
+      $scope.paymentMethods = data;
+    });
+  };
+
+  $scope.showPayMethod = function(payment) {
+    if(payment.group && $scope.groups.length) {
+      var selected = $filter('filter')($scope.groups, {id: member.group});
+      return selected.length ? selected[0].text : 'Not set';
+    } else {
+      return member.groupName || 'Not set';
     }
   };
+
+  $scope.addPayment = function () {
+    var today = new Date();
+
+    $scope.insertedPayment = {
+      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
+      amount: 0,
+      method: ''
+    }
+
+    $scope.member.payments.push($scope.insertedPayment);
+  }
+
+  $scope.savePayment = function (data) {
+    console.log('data', data);
+    data.member_id = member.id;
+    if (data.id) {
+      data.$update();
+    } else {
+      Api.Payments().save(data);
+    }
+  }
 }
-angular.module('askCrm.members.import', [
+angular.module('askCrm.members.detail', [
   'askCrm'
   ])
 
 .config(function($stateProvider, $urlRouterProvider) {
+
+//  $urlRouterProvider.otherwise("/add-person");
   $stateProvider
-    .state('members.import', {
-      url: '/import',
-      templateUrl: '/components/members/import/members.import.html',
-      controller: 'MembersImportCtrl'
+    .state('members.detail', {
+      url: '/:id',
+      parent: 'members',
+      templateUrl: '/components/members/detail/members.detail.html',
+      controller: 'MembersDetailCtrl',
+      resolve: {
+        member: ['$stateParams', 'Api', function($stateParams, Api) {
+          return Api.Members().get($stateParams).$promise;
+        }]
+      }
     })
 })
 
+.controller('MembersDetailCtrl', ['$scope', 'Api', 'member', MembersDetailCtrl])
 
-.controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'Api', MembersImportCtrl])
 function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api, members) {
   $scope.members = members;
 
@@ -39886,6 +39838,55 @@ angular.module('askCrm.members.list', [
 
 
 .controller('MembersListCtrl', ['$scope', '$state', '$stateParams', '$location', '$timeout', 'Api', 'members', MembersListCtrl])
+function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
+  $scope.$watch('file', function () {
+    console.log('file change');
+    $scope.upload($scope.file);
+  });
+
+  $scope.upload = function (file) {
+    if (!file) {
+      return;
+    }
+
+    if (!file.$error) {
+      Upload.upload({
+        url: 'http://ask-crm-api.app/api/v1/members/import',
+        data: {
+          file: file  
+        }
+      }).then(function (resp) {
+          $timeout(function() {
+              $scope.log = 'file: ' +
+              resp.config.data.file.name +
+              ', Response: ' + JSON.stringify(resp.data) +
+              '\n' + $scope.log;
+          });
+      }, null, function (evt) {
+          var progressPercentage = parseInt(100.0 *
+              evt.loaded / evt.total);
+          $scope.log = 'progress: ' + progressPercentage + 
+            '% ' + evt.config.data.file.name + '\n' + 
+            $scope.log;
+      });
+    }
+  };
+}
+angular.module('askCrm.members.import', [
+  'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+    .state('members.import', {
+      url: '/import',
+      templateUrl: '/components/members/import/members.import.html',
+      controller: 'MembersImportCtrl'
+    })
+})
+
+
+.controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'Api', MembersImportCtrl])
 function MembersAddPaymentCtrl ($scope, Api, member) {
   $scope.member = member;
 }
