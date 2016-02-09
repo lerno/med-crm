@@ -1,0 +1,54 @@
+<form class="form-horizontal">
+  <div class="form-group">
+    <label>Id</label>
+    <input type="number" class="form-control" placeholder="Id" ng-model="member.id" readonly>
+    <label>Personnummer</label>
+    <input class="form-control" placeholder="YYYYMMDDXXXX" ng-model="member.personal_number">
+    <label>Förnamn</label>
+    <input type="text" class="form-control" placeholder="Förnamn" ng-model="member.first_name">
+    <label>Efternamn</label>
+    <input type="text" class="form-control" placeholder="Efternamn" ng-model="member.last_name">
+    <label>Kön</label>
+    <select ng-model="member.gender_id">
+      <option ng-repeat="g in genders" value="{{g.id}}" ng-selected="member.gender_id == g.id">{{g.name}}</option>
+    </select>
+    <label>Land</label>
+    <select ng-model="member.country_id">
+      <option ng-repeat="c in countries" value="{{c.id}}" ng-selected="member.country_id == c.id">{{c.name}}</option>
+    </select>
+    <div ng-if="countries">
+      <label>Adress</label>
+      <input type="text" class="form-control" placeholder="Adress" ng-model="member.street_address">
+      <label>Postnummer</label>
+      <input type="text" class="form-control" placeholder="Postnummer" ng-model="member.postcode" ng-blur="checkZipcodes()">
+      <label>Stad</label>
+      <input type="text" class="form-control" placeholder="Stad" ng-model="member.city">
+    </div>
+    <label>Telefonnummer</label>
+    <input type="text" class="form-control" placeholder="Telefon" ng-model="member.phone">
+    <label>E-post</label>
+    <input type="email" class="form-control" placeholder="E-post" ng-model="member.email">
+    <label>AIK-Forum</label>
+    <input type="text" class="form-control" placeholder="AIK-Forum" ng-model="member.aik_forum_id" strip-media-url="aikforum">
+    <label>Facebook</label>
+    <input type="text" class="form-control" placeholder="Facebook" ng-model="member.facebook_id" strip-media-url="facebook">
+    <label>Twitter</label>
+    <input type="text" class="form-control" placeholder="Twitter" ng-model="member.twitter_id" strip-media-url="twitter">
+    <label>Medlem sedan</label>
+    <input type="text" class="form-control" placeholder="Medlem sedan" ng-model="member.member_since">
+    <label>Senaste betalning</label>
+    <input type="text" class="form-control" placeholder="Senaste betalning" ng-model="member.paiddate">
+    <label>Medlemskap utgår</label>
+    <input type="text" class="form-control" placeholder="Medlemskap utgår" ng-model="member.expiredate">
+    <!--
+    <label>Betalningsmetod</label>
+    <select ng-model="member.paymentMethods" ng-options="p.name for p in paymentMethods"></select>
+    <label>Admin-nivå</label>
+    <input type="text" class="form-control" placeholder="Admin-nivå" ng-model="member.adminlevel_id">
+    -->
+    <label>Kommentar</label>
+    <input type="text" class="form-control" placeholder="Kommentar" ng-model="member.comment">
+  </div>
+
+  <button type="submit" class="btn btn-default" ng-click="submit()">Skicka</button>
+</form>

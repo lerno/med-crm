@@ -1,0 +1,43 @@
+<a ui-sref="members.add" class="btn btn-success pull-right">Lägg till användare</a>
+<form ng-submit="search()" class="form-inline">
+  <input type="text" class="form-control" placeholder="Sök" ng-model="filterQuery" />
+  <select 
+    ng-model="filterType" ng-options="option.name for option in filterOptions" class="form-control" ng-change="resetLocation('{{filterType.value}}')">
+  </select>
+  <input type="submit" class="form-control btn btn-default" value="Sök" />
+</form>
+
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <td><a ui-sref="members.list({sort: sortById})">Id</a></td>
+      <td><a ui-sref="members.list({sort: sortByPersonal_number})">Personnummer</a></td>
+      <td>Namn</td>
+      <td>E-post</td>
+      <td>Telefonnummer</td>
+      <td>Facebook</td>
+      <td>Twitter</td>
+      <td>AIK-Forum</td>
+      <td>Medlem sedan</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="member in members" ng-click="goToMember(member.id)">
+      <td ng-bind="member.id" sortable="id" filter="{'id': 'text'}"></td>
+      <td ng-bind="member.personal_number" sortable="personal_number"></td>
+      <td>{{member.first_name}} {{member.last_name}}</td>
+      <td ng-bind="member.email"></td>
+      <td ng-bind="member.phone"></td>
+      <td ng-bind="member.facebook_id"></td>
+      <td ng-bind="member.twitter_id"></td>
+      <td ng-bind="member.aik_forum_id"></td>
+      <td ng-bind="member.member_since"></td>
+      <td>
+        <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="goToMemberEdit(member.id)">
+          Redigera
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>

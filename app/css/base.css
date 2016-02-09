@@ -1,3 +1,5 @@
+@import url(/bower_components/angular-native-picker/build/themes/default.css);
+@import url(/bower_components/angular-native-picker/build/themes/default.date.css);
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 html {
   font-family: sans-serif;
@@ -4833,3 +4835,6 @@ button.close {
 @media print {
   .hidden-print {
     display: none !important; } }
+
+label {
+  display: block; }

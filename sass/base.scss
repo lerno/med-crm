@@ -1,2 +1,8 @@
 @import "../app/bower_components/bootstrap-sass/assets/stylesheets/bootstrap.scss";
+@import "/bower_components/angular-native-picker/build/themes/default.css";
+@import "/bower_components/angular-native-picker/build/themes/default.date.css";
+
+label {
+  display: block;
+}
 

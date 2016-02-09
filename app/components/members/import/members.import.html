@@ -1,0 +1,18 @@
+<div 
+  ngf-drop 
+  ngf-select 
+  ng-model="file" 
+  class="drop-box" 
+  ngf-drag-over-class="'dragover'" 
+  ngf-multiple="false" 
+  ngf-allow-dir="true"
+  accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+  style="width: 400px; height: 200px; border: 10px dashed black; text-align: center; padding-top: 40px;">
+    Släpp Excel-filen här för att ladda upp
+</div>
+<p>{{log}}</p>
+    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+    Files:
+    <ul>
+        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
+    </ul>
