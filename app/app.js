@@ -12,7 +12,7 @@ angular.module('askCrm', [
   'ngFileUpload'
 ])
 
-.constant('APIURI', 'http://ask-crm-api.app/api/v1')
+.constant('APIURI', appConfig.apiUri)
 
 .config(['$urlRouterProvider', '$locationProvider', function($urlRouterProvider, $locationProvider) {
   $urlRouterProvider.otherwise('/login');

@@ -45,6 +45,7 @@ gulp.task('js', function() {
       '!./app/components/**/*_test.js',
       './app/shared/**/*.js',
       '!./app/shared/**/*_test.js',
+      '!./app/config.json',
       './app/app.js'
     ])
     .pipe(concat('all.js'))
