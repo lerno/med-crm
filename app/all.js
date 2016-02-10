@@ -44380,6 +44380,19 @@ function LoginWithTokenCtrl ($scope, $http, $state, $stateParams, Api, authoriz
   });
 
 }
+angular.module('askCrm.pay', [
+    'askCrm.pay.parseToken',
+    'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+    .state('pay', {
+      url: '/pay',
+      abstract: true,
+      template: '<ui-view />'
+    })
+})
 angular.module('askCrm.members', [
   'askCrm.members.list',
   'askCrm.members.edit',
@@ -44426,19 +44439,6 @@ angular.module('askCrm.version', [
 
 .value('version', '0.1');
 
-angular.module('askCrm.pay', [
-    'askCrm.pay.parseToken',
-    'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider
-    .state('pay', {
-      url: '/pay',
-      abstract: true,
-      template: '<ui-view />'
-    })
-})
 'use strict';
 
 angular.module('askCrm.view1', ['ui.router'])
@@ -44453,77 +44453,27 @@ angular.module('askCrm.view2', ['ui.router'])
 .controller('View2Ctrl', [function() {
 
 }]);
-function MembersDetailCtrl ($scope, sweet, Api, member) {
-  $scope.paymentMethods = [];
-  $scope.member = member;
+function PayParseTokenCtrl($scope, $stateParams, Api) {
+  var paymentReminder = Api.Members().getPaymentReminder($stateParams);
 
-  $scope.sendPaymentReminder = function(id) {
-    console.log('$scope.member.id', $scope.member.id);
-    var reminder = Api.PaymentReminders().sendToMember({member_id: $scope.member.id}, function(data) {
-        sweet.show('Skickat!', 'Ett mail har skickats till medlemmen för att påminna om att förlänga medlemskapet.', 'success');
-    });
-  }
-
-  $scope.loadPaymentMethods = function() {
-    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
-      $scope.paymentMethods = data;
-    });
-  };
-
-  $scope.showPayMethod = function(payment) {
-    if(payment.group && $scope.groups.length) {
-      var selected = $filter('filter')($scope.groups, {id: member.group});
-      return selected.length ? selected[0].text : 'Not set';
-    } else {
-      return member.groupName || 'Not set';
-    }
-  };
-
-  $scope.addPayment = function () {
-    var today = new Date();
-
-    $scope.insertedPayment = {
-      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
-      amount: 0,
-      method: ''
-    }
-
-    $scope.member.payments.push($scope.insertedPayment);
-  }
-
-  $scope.savePayment = function (data) {
-    console.log('data', data);
-    data.member_id = member.id;
-    if (data.id) {
-      data.$update();
-    } else {
-      Api.Payments().save(data);
-    }
-  }
+  console.log('paymentReminder', paymentReminder);
 }
-angular.module('askCrm.members.detail', [
+angular.module('askCrm.pay.parseToken', [
   'askCrm'
   ])
 
 .config(function($stateProvider, $urlRouterProvider) {
 
-//  $urlRouterProvider.otherwise("/add-person");
   $stateProvider
-    .state('members.detail', {
-      url: '/:id',
-      parent: 'members',
-      templateUrl: '/components/members/detail/members.detail.html',
-      controller: 'MembersDetailCtrl',
-      resolve: {
-        member: ['$stateParams', 'Api', function($stateParams, Api) {
-          return Api.Members().get($stateParams).$promise;
-        }]
-      }
+    .state('pay.parseToken', {
+      url: '/parse-token?token',
+      parent: 'pay',
+      templateUrl: '/components/pay/parseToken/pay.parseToken.html',
+      controller: 'PayParseTokenCtrl'
     })
 })
 
-.controller('MembersDetailCtrl', ['$scope', 'sweet', 'Api', 'member', MembersDetailCtrl])
-
+.controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
 function MembersEditCtrl($scope, Api, member) {
   $scope.member = {};
   $scope.countries;
@@ -44660,6 +44610,77 @@ angular.module('askCrm.members.edit', [
     }
   };
 });
+function MembersDetailCtrl ($scope, sweet, Api, member) {
+  $scope.paymentMethods = [];
+  $scope.member = member;
+
+  $scope.sendPaymentReminder = function(id) {
+    console.log('$scope.member.id', $scope.member.id);
+    var reminder = Api.PaymentReminders().sendToMember({member_id: $scope.member.id}, function(data) {
+        sweet.show('Skickat!', 'Ett mail har skickats till medlemmen för att påminna om att förlänga medlemskapet.', 'success');
+    });
+  }
+
+  $scope.loadPaymentMethods = function() {
+    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
+      $scope.paymentMethods = data;
+    });
+  };
+
+  $scope.showPayMethod = function(payment) {
+    if(payment.group && $scope.groups.length) {
+      var selected = $filter('filter')($scope.groups, {id: member.group});
+      return selected.length ? selected[0].text : 'Not set';
+    } else {
+      return member.groupName || 'Not set';
+    }
+  };
+
+  $scope.addPayment = function () {
+    var today = new Date();
+
+    $scope.insertedPayment = {
+      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
+      amount: 0,
+      method: ''
+    }
+
+    $scope.member.payments.push($scope.insertedPayment);
+  }
+
+  $scope.savePayment = function (data) {
+    console.log('data', data);
+    data.member_id = member.id;
+    if (data.id) {
+      data.$update();
+    } else {
+      Api.Payments().save(data);
+    }
+  }
+}
+angular.module('askCrm.members.detail', [
+  'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+
+//  $urlRouterProvider.otherwise("/add-person");
+  $stateProvider
+    .state('members.detail', {
+      url: '/:id',
+      parent: 'members',
+      templateUrl: '/components/members/detail/members.detail.html',
+      controller: 'MembersDetailCtrl',
+      resolve: {
+        member: ['$stateParams', 'Api', function($stateParams, Api) {
+          return Api.Members().get($stateParams).$promise;
+        }]
+      }
+    })
+})
+
+.controller('MembersDetailCtrl', ['$scope', 'sweet', 'Api', 'member', MembersDetailCtrl])
+
 function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
   $scope.$watch('file', function () {
     console.log('file change');
@@ -44901,36 +44922,15 @@ function PaymentsCtrl($scope, $state, $stateParams, Api) {
     }
   });
 }
-function PayParseTokenCtrl($scope, $stateParams, Api) {
-  var paymentReminder = Api.Members().getPaymentReminder($stateParams);
-
-  console.log('paymentReminder', paymentReminder);
-}
-angular.module('askCrm.pay.parseToken', [
-  'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-
-  $stateProvider
-    .state('pay.parseToken', {
-      url: '/parse-token?token',
-      parent: 'pay',
-      templateUrl: '/components/pay/parseToken/pay.parseToken.html',
-      controller: 'PayParseTokenCtrl'
-    })
-})
-
-.controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
-function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
-  var info = Api.Members().getPaymentInfo($stateParams, function() {
-    $scope.iframe = $sce.trustAsHtml(info.next_url);
-  });
-}
 function MembersAddPaymentStepOneCtrl($scope, Api, member) {
   console.log('e');
   $scope.paymentMethods = Api.PaymentMethods().query({
     online_payments: 1
+  });
+}
+function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
+  var info = Api.Members().getPaymentInfo($stateParams, function() {
+    $scope.iframe = $sce.trustAsHtml(info.next_url);
   });
 }
 function MembersAddPaymentStepThreeCtrl ($scope, $stateParams, Api, member, payment) {
@@ -45001,7 +45001,7 @@ angular.module('askCrm.api', [
 
     PaymentReminders: function () {
       return $resource(APIURI + '/payment-reminders', {
-        member_id: 'member_id'
+        member_id: '@member_id'
       }, {
         sendToMember: {
           method: 'POST',
