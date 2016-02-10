@@ -146,7 +146,6 @@ gulp.task('deploy', function () {
         ])
         .on('error', reject)
         .pipe(templateCache({
-          standalone: true,
           root: '/'
         }))
         .pipe(gulp.dest('dist'))
@@ -186,6 +185,13 @@ gulp.task('deploy', function () {
         ignorePath: 'dist'
       }))
       .pipe(gulp.dest('./dist'));
+
+      gulp.src([
+        './app/images/**/*.jpg',
+        './app/images/**/*.jpeg',
+        './app/images/**/*.png',
+        ])
+      .pipe(gulp.dest('./dist/images'))
   });
 
 });

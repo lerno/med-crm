@@ -1,3 +1,5 @@
+angular.module('templates', []);
+
 'use strict';
 
 var askCrm = angular.module('askCrm', [
