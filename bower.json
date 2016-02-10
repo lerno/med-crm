@@ -17,7 +17,9 @@
     "ng-file-upload": "~11.2.3",
     "bootstrap-sass": "~3.3.6",
     "angular-native-datepicker": "angular-native-picker#^1.0.4",
-    "angular-permission": "^2.0.6"
+    "angular-permission": "^2.0.6",
+    "angular-sweetalert": "angular-h-sweetalert#^1.4.7",
+    "angular-cookies": "^1.5.0"
   },
   "devDependencies": {
     "angular-permission": "^2.0.6"

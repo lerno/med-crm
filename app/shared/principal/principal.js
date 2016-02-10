@@ -55,15 +55,19 @@ angular.module('kPrincipal', [])
           return deferred.promise;
         }
 
-        Api.Users().get({id: $cookies.user_id}, function(data) {
-            _identity = data;
-            _authenticated = true;
-            deferred.resolve(_identity);
-        }, function(data){
-            _identity = undefined;
-            _authenticated = false;
-            deferred.reject(data);
-        });
+        if (!$cookies.get('user_id')) {
+          deferred.reject(undefined);
+        } else {
+          Api.Users().get({id: $cookies.get('user_id')}, function(data) {
+              _identity = data;
+              _authenticated = true;
+              deferred.resolve(_identity);
+          }, function(data){
+              _identity = undefined;
+              _authenticated = false;
+              deferred.reject(data);
+          });
+        }
 
         // otherwise, retrieve the identity data from the server, update the identity object, and then resolve.
         //                   $http.get('/svc/account/identity', { ignoreErrors: true })

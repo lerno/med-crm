@@ -11,7 +11,8 @@ var askCrm = angular.module('askCrm', [
   'xeditable',
   'checklist-model',
   'ngCookies',
-  'ngFileUpload'
+  'ngFileUpload',
+  'hSweetAlert'
 ])
 
 // The templates module is only used in /dist
@@ -35,10 +36,17 @@ askCrm.constant('APIURI', appConfig.apiUri)
   $locationProvider.html5Mode(appConfig.html5Mode);
 }])
 
-.run(['$rootScope', '$q', 'PermissionStore', 'principal', function ($rootScope, $q, PermissionStore, principal) {
+.run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'principal', function ($rootScope, $q, sweet, PermissionStore, principal) {
+
+  $rootScope.$on('httpRejection', function(event, args) {
+    sweet.show('Oops...', 'Någonting gick fel: ' + args.data.message, 'error');
+  })
+  console.log('hej');
   principal.identity().then(function(data) {
+    console.log('hej2');
     $rootScope.currentUser = data;
   });
+
   // Define anonymous permission
   PermissionStore
     .definePermission('anonymous', function (stateParams) {
@@ -98,8 +106,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
           });
       },
       setTokenAndUser: function(token, user) {
-        $cookies.token = token;
-        $cookies.user_id = user.id;
+        $cookies.put('token', token);
+        $cookies.put('user_id', user.id);
         return;
       },
       login: function(_user) {
@@ -108,20 +116,21 @@ askCrm.constant('APIURI', appConfig.apiUri)
           $http
             .post(APIURI + '/authentication', _user)
             .success(function (data, status, headers, config) {
-                $cookies.token = data.token;
-                $cookies.user_id = data.user.id;
+                $cookies.put('token', data.token);
+                $cookies.put('user_id', data.user.id);
                 principal.authenticate(data.user);
                 deferred.resolve(true);
             })
             .error(function (data, status, headers, config) {
-                delete $cookies.token;
+                $cookies.remove('token');
                 deferred.reject(data);
             })
 
           return deferred.promise;
       },
       logout: function() {
-          delete $cookies.token;
+          $cookies.remove('token');
+          $cookies.remove('user_id');
           principal.unsetIdentity();
       }
     };

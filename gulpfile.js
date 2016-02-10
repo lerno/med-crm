@@ -56,6 +56,8 @@ gulp.task('js', function() {
       config.bowerDir + '/ng-file-upload-shim/ng-file-upload-shim.js',
       config.bowerDir + '/ng-file-upload/ng-file-upload.js',
       config.bowerDir + '/angular-permission/dist/angular-permission.js',
+      config.bowerDir + '/sweetalert/dist/sweetalert.min.js',
+      config.bowerDir + '/angular-sweetalert/dist/ngSweetAlert.js',
       './app/components/**/*.js',
       '!./app/components/**/*_test.js',
       './app/shared/**/*.js',

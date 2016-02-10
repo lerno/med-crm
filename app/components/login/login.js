@@ -14,12 +14,13 @@ angular.module('askCrm.login', ['askCrm', 'ngCookies'])
     })
     .state('logout', {
       url: '/logout',
-      controller: ['authorization', function(authorization) {
+      controller: ['$state', 'authorization', function($state, authorization) {
         authorization.logout();
+        $state.go('login');
       }]
     })
 })
 
-.controller('LoginCtrl', ['$scope', '$state', 'authorization', LoginCtrl])
+.controller('LoginCtrl', ['$scope', '$state', 'sweet', 'authorization', LoginCtrl])
 
 .controller('LoginWithTokenCtrl', ['$scope', '$http', '$stateParams', 'authorization', LoginWithTokenCtrl])

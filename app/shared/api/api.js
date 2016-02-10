@@ -9,8 +9,8 @@ angular.module('askCrm.api', [
   return {
     request: function (config) {
       config.headers = config.headers || {};
-      if ($cookies.token) {
-        config.headers['Authorization'] = 'Bearer: ' + $cookies.token;
+      if ($cookies.get('token')) {
+        config.headers['Authorization'] = 'Bearer: ' + $cookies.get('token');
       }
       return config;
     },
@@ -21,9 +21,8 @@ angular.module('askCrm.api', [
         $rootScope.$broadcast('httpRejection', rejection);
         switch(rejection.status) {
             case 400: // Not auth
-                if(!$cookies.token) {
-                  delete $cookies.token;
-                  $state.go('login');
+                if(!$cookies.get('token')) {
+                  $cookies.remove('token');
                 }
             break;
         }
@@ -51,10 +50,6 @@ angular.module('askCrm.api', [
         update: {
           method: 'PUT'
         },
-        sendPaymentReminder: {
-          method: 'POST',
-          url: APIURI + '/members/:id/payment-reminder'
-        },
         getPaymentReminder: {
           method: 'GET',
           url: APIURI + '/payment-reminder/:token'
@@ -64,6 +59,15 @@ angular.module('askCrm.api', [
           url: APIURI + '/members/:id/pay/:payment_method_id'
         }
       });
+    },
+
+    PaymentReminders: function () {
+      return $resource(APIURI + '/payment-reminders', {member_id:'@member_id'}, {
+        sendToMember: {
+          method: 'POST',
+          url: APIURI + '/members/:member_id/payment-reminder'
+        }
+      })
     },
 
     Genders: function() {

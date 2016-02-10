@@ -19,4 +19,4 @@ angular.module('askCrm.members.detail', [
     })
 })
 
-.controller('MembersDetailCtrl', ['$scope', 'Api', 'member', MembersDetailCtrl])
+.controller('MembersDetailCtrl', ['$scope', 'sweet', 'Api', 'member', MembersDetailCtrl])

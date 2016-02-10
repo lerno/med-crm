@@ -1,9 +1,12 @@
-function MembersDetailCtrl ($scope, Api, member) {
+function MembersDetailCtrl ($scope, sweet, Api, member) {
   $scope.paymentMethods = [];
   $scope.member = member;
 
   $scope.sendPaymentReminder = function(id) {
-    $scope.member.$sendPaymentReminder();
+    console.log('$scope.member.id', $scope.member.id);
+    var reminder = Api.PaymentReminders().sendToMember({member_id: $scope.member.id}, function(data) {
+        sweet.show('Skickat!', 'Ett mail har skickats till medlemmen för att påminna om att förlänga medlemskapet.', 'success');
+    });
   }
 
   $scope.loadPaymentMethods = function() {
