@@ -24,34 +24,17 @@ angular.module('askCrm.members.payment', [
       templateUrl: '/components/members/payment/step1/members.payment.step1.html',
       controller: 'MembersAddPaymentStepOneCtrl'
     })
-    .state('members.addPayment.step3', {
-      url: '/confirm/:payment_id',
-      parent: 'members.addPayment',
-      templateUrl: '/components/members/payment/step3/members.payment.step3.html',
-      controller: 'MembersAddPaymentStepThreeCtrl',
-      resolve: {
-        payment: ['$stateParams', 'Api', function($stateParams, Api) {
-            return Api.Payments().get({id: $stateParams.payment_id});
-          }]
-      }
-    })
     .state('members.addPayment.step2', {
       url: '/:payment_method_id',
       parent: 'members.addPayment',
       templateUrl: '/components/members/payment/step2/members.payment.step2.html',
       controller: 'MembersAddPaymentStepTwoCtrl'
     })
-    .state('payments', {
-      url: '/payments?klarna_order',
-      controller: 'PaymentsCtrl'
-    })
 })
 
 .controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
 .controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
 .controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
-.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', 'payment', MembersAddPaymentStepThreeCtrl])
-.controller('PaymentsCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentsCtrl])
 
 .directive('evaluateScript', function($compile, $parse){
   return {

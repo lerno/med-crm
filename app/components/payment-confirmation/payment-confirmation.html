@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="jumbotron  text-center">
+      <h1>Välkommen in i värmen!</h1>
+      <p>Vi skickar dig ett bekräftelsemail så fort vi mottagit din betalning.</p>
+      <p>&nbsp;</p>
+      <p>Boateng - Tre poäng!</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="panel panel-default" ng-show="payment">
+      <div class="panel-heading">Kvitto:</div>
+      <div class="panel-body">
+        <div class="list-group">
+          <div class="list-group-item">Beställnings-id: {{payment.id}}</div>
+          <div class="list-group-item">Summa: {{payment.amount}} SEK</div>
+          <div class="list-group-item">Datum: {{payment.payment_date}}</div>
+          <div class="list-group-item">Betalningsmethod: {{payment.payment_method.name}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,7 @@ var askCrm = angular.module('askCrm', [
   'askCrm.members',
   'askCrm.api',
   'askCrm.login',
+  'askCrm.paymentConfirmation',
   'kPrincipal',
   'xeditable',
   'checklist-model',
