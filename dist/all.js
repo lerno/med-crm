@@ -44397,19 +44397,6 @@ angular.module('askCrm.members', [
       template: '<ui-view />'
     })
 })
-angular.module('askCrm.pay', [
-    'askCrm.pay.parseToken',
-    'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider
-    .state('pay', {
-      url: '/pay',
-      abstract: true,
-      template: '<ui-view />'
-    })
-})
 'use strict';
 
 angular.module('myApp.version.interpolate-filter', [])
@@ -44439,6 +44426,19 @@ angular.module('askCrm.version', [
 
 .value('version', '0.1');
 
+angular.module('askCrm.pay', [
+    'askCrm.pay.parseToken',
+    'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+    .state('pay', {
+      url: '/pay',
+      abstract: true,
+      template: '<ui-view />'
+    })
+})
 'use strict';
 
 angular.module('askCrm.view1', ['ui.router'])
@@ -44844,10 +44844,15 @@ angular.module('askCrm.members.payment', [
       controller: 'MembersAddPaymentStepOneCtrl'
     })
     .state('members.addPayment.step3', {
-      url: '/confirm',
+      url: '/confirm/:payment_id',
       parent: 'members.addPayment',
       templateUrl: '/components/members/payment/step3/members.payment.step3.html',
-      controller: 'MembersAddPaymentStepThreeCtrl'
+      controller: 'MembersAddPaymentStepThreeCtrl',
+      resolve: {
+        payment: ['$stateParams', 'Api', function($stateParams, Api) {
+            return Api.Payments().get({id: $stateParams.payment_id});
+          }]
+      }
     })
     .state('members.addPayment.step2', {
       url: '/:payment_method_id',
@@ -44864,7 +44869,7 @@ angular.module('askCrm.members.payment', [
 .controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
 .controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
 .controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
-.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', MembersAddPaymentStepThreeCtrl])
+.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', 'payment', MembersAddPaymentStepThreeCtrl])
 .controller('PaymentsCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentsCtrl])
 
 .directive('evaluateScript', function($compile, $parse){
@@ -44887,13 +44892,13 @@ angular.module('askCrm.members.payment', [
 function PaymentsCtrl($scope, $state, $stateParams, Api) {
   var _split = $stateParams.klarna_order.split('/'),
       klarna_id = _split[_split.length-1];
-  console.log('$stateParams', klarna_id); 
 
   var payment = Api.Payments().query({
     external_id: klarna_id
   }, function () {
-    console.log('payment.member_id', payment[0].member_id);
-    $state.go('members.addPayment.step3', {id: payment[0].member_id});
+    if (payment.length > 0) {
+      $state.go('members.addPayment.step3', {id: payment[0].member_id, payment_id:payment[0].id});
+    }
   });
 }
 function PayParseTokenCtrl($scope, $stateParams, Api) {
@@ -44917,18 +44922,18 @@ angular.module('askCrm.pay.parseToken', [
 })
 
 .controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
+function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
+  var info = Api.Members().getPaymentInfo($stateParams, function() {
+    $scope.iframe = $sce.trustAsHtml(info.next_url);
+  });
+}
 function MembersAddPaymentStepOneCtrl($scope, Api, member) {
   console.log('e');
   $scope.paymentMethods = Api.PaymentMethods().query({
     online_payments: 1
   });
 }
-function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
-  var info = Api.Members().getPaymentInfo($stateParams, function() {
-    $scope.iframe = $sce.trustAsHtml(info.next_url);
-  });
-}
-function MembersAddPaymentStepThreeCtrl ($scope, $stateParams, Api, member) {
+function MembersAddPaymentStepThreeCtrl ($scope, $stateParams, Api, member, payment) {
   
 }
 angular.module('askCrm.api', [
@@ -44995,7 +45000,9 @@ angular.module('askCrm.api', [
     },
 
     PaymentReminders: function () {
-      return $resource(APIURI + '/payment-reminders', {member_id:'@member_id'}, {
+      return $resource(APIURI + '/payment-reminders', {
+        member_id: 'member_id'
+      }, {
         sendToMember: {
           method: 'POST',
           url: APIURI + '/members/:member_id/payment-reminder'
@@ -45024,7 +45031,7 @@ angular.module('askCrm.api', [
     },
 
     Payments: function() {
-      return $resource(APIURI + '/payments');
+      return $resource(APIURI + '/payments/:id', {id: '@id'});
     }
   }
 }]);

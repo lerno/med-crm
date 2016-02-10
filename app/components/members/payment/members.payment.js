@@ -25,10 +25,15 @@ angular.module('askCrm.members.payment', [
       controller: 'MembersAddPaymentStepOneCtrl'
     })
     .state('members.addPayment.step3', {
-      url: '/confirm',
+      url: '/confirm/:payment_id',
       parent: 'members.addPayment',
       templateUrl: '/components/members/payment/step3/members.payment.step3.html',
-      controller: 'MembersAddPaymentStepThreeCtrl'
+      controller: 'MembersAddPaymentStepThreeCtrl',
+      resolve: {
+        payment: ['$stateParams', 'Api', function($stateParams, Api) {
+            return Api.Payments().get({id: $stateParams.payment_id});
+          }]
+      }
     })
     .state('members.addPayment.step2', {
       url: '/:payment_method_id',
@@ -45,7 +50,7 @@ angular.module('askCrm.members.payment', [
 .controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
 .controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
 .controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
-.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', MembersAddPaymentStepThreeCtrl])
+.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', 'payment', MembersAddPaymentStepThreeCtrl])
 .controller('PaymentsCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentsCtrl])
 
 .directive('evaluateScript', function($compile, $parse){

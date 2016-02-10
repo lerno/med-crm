@@ -62,7 +62,9 @@ angular.module('askCrm.api', [
     },
 
     PaymentReminders: function () {
-      return $resource(APIURI + '/payment-reminders', {member_id:'@member_id'}, {
+      return $resource(APIURI + '/payment-reminders', {
+        member_id: 'member_id'
+      }, {
         sendToMember: {
           method: 'POST',
           url: APIURI + '/members/:member_id/payment-reminder'
@@ -91,7 +93,7 @@ angular.module('askCrm.api', [
     },
 
     Payments: function() {
-      return $resource(APIURI + '/payments');
+      return $resource(APIURI + '/payments/:id', {id: '@id'});
     }
   }
 }]);
