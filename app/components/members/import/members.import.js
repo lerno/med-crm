@@ -7,7 +7,12 @@ angular.module('askCrm.members.import', [
     .state('members.import', {
       url: '/import',
       templateUrl: '/components/members/import/members.import.html',
-      controller: 'MembersImportCtrl'
+      controller: 'MembersImportCtrl',
+      data: {
+        permissions: {
+          only: ['admin']
+        }
+      }
     })
 })
 

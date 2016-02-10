@@ -14,7 +14,13 @@ angular.module('askCrm.members.list', [
           console.log('$stateParams', $stateParams);
           return Api.Members().query($stateParams);
         }]
+      },
+      data: {
+        permissions: {
+          only: ['admin']
+        }
       }
+
     })
 })
 

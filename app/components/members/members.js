@@ -12,13 +12,6 @@ angular.module('askCrm.members', [
     .state('members', {
       url: '/members',
       abstract: true,
-      template: '<ui-view />',
-      resolve: {
-        authorize: ['authorization',
-          function(authorization) {
-            return authorization.authorize();
-          }
-        ]
-      }
+      template: '<ui-view />'
     })
 })

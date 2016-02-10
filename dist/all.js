@@ -39410,6 +39410,774 @@ ngFileUpload.service('UploadExif', ['UploadResize', '$q', function (UploadResize
 }]);
 
 
+/**
+ * angular-permission
+ * Route permission and access control as simple as it can get
+ * @version v2.0.6 - 2016-02-08
+ * @link http://www.rafaelvidaurre.com
+ * @author Rafael Vidaurre <narzerus@gmail.com>
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
+
+(function () {
+  'use strict';
+
+  var permission = angular.module('permission', ['ui.router']);
+
+  /**
+   * This decorator is required to access full state object instead of it's configuration
+   * when trying to obtain full toState state object not it's configuration
+   * Can be removed when implemented https://github.com/angular-ui/ui-router/issues/13.
+   */
+  permission.config(['$stateProvider', function ($stateProvider) {
+    $stateProvider.decorator('parent', function (state, parentFn) {
+      state.self.getState = function () {
+        return state;
+      };
+      return parentFn(state);
+    });
+  }]);
+
+  permission.run(['$rootScope', '$state', '$q', 'Authorization', 'PermissionMap', function ($rootScope, $state, $q, Authorization, PermissionMap) {
+    $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams, options) {
+
+      if (toState.$$isAuthorizationFinished) {
+        return;
+      }
+
+      if (areSetStatePermissions(toState)) {
+        event.preventDefault();
+        setStateAuthorizationStatus(true);
+
+
+        if (!areStateEventsDefaultPrevented()) {
+          var compensatedPermissionMap = compensatePermissionMap(toState.data.permissions);
+          authorizeForState(compensatedPermissionMap);
+        }
+      }
+
+      /**
+       * Checks if state is qualified to be permission based verified
+       *
+       * @returns {boolean}
+       */
+      function areSetStatePermissions(state) {
+        return angular.isDefined(state.data) && angular.isDefined(state.data.permissions);
+      }
+
+      /**
+       * Sets internal state `$$finishedAuthorization` variable to prevent looping
+       *
+       * @param status {boolean} When true authorization has been already preceded
+       */
+      function setStateAuthorizationStatus(status) {
+        toState = angular.extend({'$$isAuthorizationFinished': status}, toState);
+      }
+
+      /**
+       * Checks if state events are not prevented by default
+       *
+       * @returns {boolean}
+       */
+      function areStateEventsDefaultPrevented() {
+        return isStateChangePermissionStartDefaultPrevented() || isStateChangeStartDefaultPrevented();
+      }
+
+      /**
+       * Builds map of permissions resolving passed values to data.permissions and combine them with all its parents
+       * keeping the order of permissions from the newest (children) to the oldest (parent)
+       *
+       * @param statePermissionMap {Object} Current state permission map
+       * @returns {{only: Array, except: Array}} Permission map
+       */
+      function compensatePermissionMap(statePermissionMap) {
+        var permissionMap = new PermissionMap({redirectTo: statePermissionMap.redirectTo});
+
+        var toStatePath = $state
+          .get(toState.name)
+          .getState().path
+          .slice()
+          .reverse();
+
+        angular.forEach(toStatePath, function (state) {
+          if (areSetStatePermissions(state)) {
+            permissionMap.extendPermissionMap(new PermissionMap(state.data.permissions));
+          }
+        });
+
+        return permissionMap;
+      }
+
+      /**
+       * Handles state authorization
+       *
+       * @param permissions {Object} Map of "only" or "except" permission names
+       */
+      function authorizeForState(permissions) {
+        Authorization
+          .authorize(permissions, toParams)
+          .then(function () {
+            $rootScope.$broadcast('$stateChangePermissionAccepted', toState, toParams, options);
+            goToState(toState.name);
+          })
+          .catch(function (rejectedPermission) {
+            $rootScope.$broadcast('$stateChangePermissionDenied', toState, toParams, options);
+            permissions.redirectToState(rejectedPermission);
+          });
+      }
+
+      /**
+       * Redirects to states when permissions are met
+       *
+       * If authorized, use call state.go without triggering the event.
+       * Then trigger $stateChangeSuccess manually to resume the rest of the process
+       * Note: This is a pseudo-hacky fix which should be fixed in future ui-router versions
+       */
+      function goToState(name) {
+        $state
+          .go(name, toParams, angular.extend({}, options, {notify: false}))
+          .then(function () {
+            $rootScope.$broadcast('$stateChangeSuccess', toState, toParams, fromState, fromParams, options);
+          });
+      }
+
+      /**
+       * Checks if event $stateChangeStart hasn't been disabled by default
+       *
+       * @returns {boolean}
+       */
+      function isStateChangeStartDefaultPrevented() {
+        return $rootScope.$broadcast('$stateChangeStart', toState, toParams, fromState, fromParams, options).defaultPrevented;
+      }
+
+      /**
+       * Checks if event $stateChangePermissionStart hasn't been disabled by default
+       *
+       * @returns {boolean}
+       */
+      function isStateChangePermissionStartDefaultPrevented() {
+        return $rootScope.$broadcast('$stateChangePermissionStart', toState, toParams, options).defaultPrevented;
+      }
+    });
+  }]);
+}());
+
+(function () {
+  'use strict';
+
+  angular
+    .module('permission')
+    .factory('PermissionMap', ['$q', '$state', function ($q, $state) {
+
+      /**
+       * Constructs map object instructing authorization service how to handle authorizing
+       *
+       * @param permissionMap {Object} Map of permissions provided to authorization service
+       * @param permissionMap.only {Array} List of exclusive permission/role names allowed for authorization
+       * @param permissionMap.except {Array} List of exclusive permission/role names denied for authorization
+       * @param permissionMap.redirectTo {String|Function|Object|promise} Handling redirection when rejected
+       *   authorization
+       * @param [toState] {Object} UI-Router transition state object
+       * @param [toParams] {Object} UI-Router transition state params
+       * @param [options] {Object} UI-Router transition state options
+       * @constructor
+       */
+      function PermissionMap(permissionMap, toState, toParams, options) {
+        this.only = resolvePermissionMapProperty(permissionMap.only, toState, toParams, options);
+        this.except = resolvePermissionMapProperty(permissionMap.except, toState, toParams, options);
+        this.redirectTo = permissionMap.redirectTo;
+      }
+
+      /**
+       * Extends permission map by pushing to it state's permissions
+       *
+       * @param permissionMap {PermissionMap} Compensated permission map
+       */
+      PermissionMap.prototype.extendPermissionMap = function (permissionMap) {
+        this.only = this.only.concat(permissionMap.only);
+        this.except = this.except.concat(permissionMap.except);
+      };
+
+
+      /**
+       * Redirects to fallback states when permissions fail
+       *
+       * @param rejectedPermissionName {String} Permission name
+       */
+      PermissionMap.prototype.redirectToState = function (rejectedPermissionName) {
+        if (angular.isFunction(this.redirectTo)) {
+          handleFunctionRedirect(this.redirectTo, rejectedPermissionName);
+        }
+
+        if (angular.isObject(this.redirectTo)) {
+          handleObjectRedirect(this.redirectTo, rejectedPermissionName);
+        }
+
+        if (angular.isString(this.redirectTo)) {
+          handleStringRedirect(this.redirectTo, this.toParams, this.options);
+        }
+      };
+
+      /**
+       * Handles function based redirection for rejected permissions
+       *
+       * @param redirectFunction {Function} Redirection function
+       * @param permission {String} Rejected permission
+       */
+      function handleFunctionRedirect(redirectFunction, permission) {
+        $q.when(redirectFunction.call(null, permission))
+          .then(function (redirectState) {
+            if (!angular.isString(redirectState)) {
+              throw new TypeError('When used "redirectTo" as function, returned value must be string with state name');
+            }
+            handleStringRedirect(redirectState);
+          });
+      }
+
+      /**
+       * Handles object based redirection for rejected permissions
+       *
+       * @param redirectObject {Object} Redirection function
+       * @param permission {String} Rejected permission
+       */
+      function handleObjectRedirect(redirectObject, permission) {
+        if (!angular.isDefined(redirectObject['default'])) {
+          throw new ReferenceError('When used "redirectTo" as object, property "default" must be defined');
+        }
+
+        var redirectState = redirectObject[permission];
+
+        if (!angular.isDefined(redirectState)) {
+          redirectState = redirectObject['default'];
+        }
+
+        if (angular.isFunction(redirectState)) {
+          handleFunctionRedirect(redirectState, permission);
+        }
+
+        if (angular.isString(redirectState)) {
+          handleStringRedirect(redirectState);
+        }
+      }
+
+      /**
+       * Handles string based redirection for rejected permissions
+       */
+      function handleStringRedirect(state, toParams, options) {
+        $state.go(state, toParams, options);
+      }
+
+      /**
+       * Handles extraction of permission map "only" and "except" properties
+       * @private
+       *
+       * @param property {Array|Function|promise} Permission map property "only" or "except"
+       * @param [toState] {Object} UI-Router transition state object
+       * @param [toParams] {Object} UI-Router transition state params
+       * @param [options] {Object} UI-Router transition state options
+       * @returns {Array} Array of permission "only" or "except" names
+       */
+      function resolvePermissionMapProperty(property, toState, toParams, options) {
+        if (angular.isString(property)) {
+          return [property];
+        }
+
+        if (angular.isArray(property)) {
+          return property;
+        }
+
+        if (angular.isFunction(property)) {
+          return property.call(null, toState, toParams, options);
+        }
+
+        return [];
+      }
+
+      return PermissionMap;
+    }]);
+}());
+(function () {
+  'use strict';
+
+  angular
+    .module('permission')
+    .factory('Permission', ['$q', function ($q) {
+
+      /**
+       * Permission definition object constructor
+       *
+       * @param permissionName {String} Name repressing permission
+       * @param validationFunction {Function} Function used to check if permission is valid
+       * @constructor
+       */
+      function Permission(permissionName, validationFunction) {
+        validateConstructor(permissionName, validationFunction);
+
+        this.permissionName = permissionName;
+        this.validationFunction = validationFunction;
+      }
+
+      /**
+       * Checks if permission is still valid
+       *
+       * @param toParams {Object} UI-Router params object
+       * @returns {Promise}
+       */
+      Permission.prototype.validatePermission = function (toParams) {
+        var validationResult = this.validationFunction.call(null, toParams, this.permissionName);
+
+        if (!angular.isFunction(validationResult.then)) {
+          validationResult = wrapInPromise(validationResult, this.permissionName);
+        }
+
+        return validationResult;
+      };
+
+      /**
+       * Converts a value into a promise, if the value is truthy it resolves it, otherwise it rejects it
+       * @private
+       *
+       * @param result {Boolean} Function to be wrapped into promise
+       * @param permissionName {String} Returned value in promise
+       * @return {Promise}
+       */
+      function wrapInPromise(result, permissionName) {
+        var dfd = $q.defer();
+
+        if (result) {
+          dfd.resolve(permissionName);
+        } else {
+          dfd.reject(permissionName);
+        }
+
+        return dfd.promise;
+      }
+
+      /**
+       * Checks if provided permission has accepted parameter types
+       * @private
+       */
+      function validateConstructor(permissionName, validationFunction) {
+        if (!angular.isString(permissionName)) {
+          throw new TypeError('Parameter "permissionName" name must be String');
+        }
+        if (!angular.isFunction(validationFunction)) {
+          throw new TypeError('Parameter "validationFunction" must be Function');
+        }
+      }
+
+      return Permission;
+    }]);
+}());
+(function () {
+  'use strict';
+
+  angular
+    .module('permission')
+    .factory('Role', ['$q', 'PermissionStore', function ($q, PermissionStore) {
+
+      /**
+       * Role definition constructor
+       *
+       * @param roleName {String} Name representing role
+       * @param permissionNames {Array} List of permission names representing role
+       * @param [validationFunction] {Function} Optional function used to validate if permissions are still valid
+       * @constructor
+       */
+      function Role(roleName, permissionNames, validationFunction) {
+        validateConstructor(roleName, permissionNames, validationFunction);
+        this.roleName = roleName;
+        this.permissionNames = permissionNames || [];
+        this.validationFunction = validationFunction;
+
+        if (validationFunction) {
+          PermissionStore.defineManyPermissions(permissionNames, validationFunction);
+        }
+      }
+
+      /**
+       * Checks if role is still valid
+       *
+       * @param [toParams] {Object} UI-Router params object
+       * @returns {Promise} $q.promise object
+       */
+      Role.prototype.validateRole = function (toParams) {
+
+        // When set permissions is provided check each of them
+        if (this.permissionNames.length) {
+          var promises = this.permissionNames.map(function (permissionName) {
+            if (PermissionStore.hasPermissionDefinition(permissionName)) {
+              var permission = PermissionStore.getPermissionDefinition(permissionName);
+              var validationResult = permission.validationFunction.call(null, toParams, permission.permissionName);
+
+              if (!angular.isFunction(validationResult.then)) {
+                validationResult = wrapInPromise(validationResult);
+              }
+
+              return validationResult;
+            }
+
+            return $q.reject(null);
+          });
+
+          return $q.all(promises);
+        }
+
+        // If not call validation function manually
+        var validationResult = this.validationFunction.call(null, toParams, this.roleName);
+        if (!angular.isFunction(validationResult.then)) {
+          validationResult = wrapInPromise(validationResult, this.roleName);
+        }
+
+        return $q.resolve(validationResult);
+
+      };
+
+      /**
+       * Converts a value into a promise, if the value is truthy it resolves it, otherwise it rejects it
+       * @private
+       *
+       * @param result {Boolean} Function to be wrapped into promise
+       * @param roleName {String} Returned value in promise
+       * @return {Promise}
+       */
+      function wrapInPromise(result, roleName) {
+        var dfd = $q.defer();
+
+        if (result) {
+          dfd.resolve(roleName);
+        } else {
+          dfd.reject(roleName);
+        }
+
+        return dfd.promise;
+      }
+
+      /**
+       * Checks if provided permission has accepted parameter types
+       * @private
+       */
+      function validateConstructor(roleName, permissionNames, validationFunction) {
+        if (!angular.isString(roleName)) {
+          throw new TypeError('Parameter "roleName" name must be String');
+        }
+
+        if (!angular.isArray(permissionNames)) {
+          throw new TypeError('Parameter "permissionNames" must be Array');
+        }
+
+        if (!permissionNames.length && !angular.isFunction(validationFunction)) {
+          throw new TypeError('Parameter "validationFunction" must be provided for empty "permissionNames" array');
+        }
+      }
+
+      return Role;
+    }]);
+}());
+(function () {
+  'use strict';
+
+  angular
+    .module('permission')
+    .service('PermissionStore', ['Permission', function (Permission) {
+      var permissionStore = {};
+
+      this.definePermission = definePermission;
+      this.defineManyPermissions = defineManyPermissions;
+      this.removePermissionDefinition = removePermissionDefinition;
+      this.hasPermissionDefinition = hasPermissionDefinition;
+      this.getPermissionDefinition = getPermissionDefinition;
+      this.getStore = getStore;
+      this.clearStore = clearStore;
+
+      /**
+       * Allows to define permission on application configuration
+       *
+       * @param permissionName {String} Name of defined permission
+       * @param validationFunction {Function} Function used to validate if permission is valid
+       */
+      function definePermission(permissionName, validationFunction) {
+        permissionStore[permissionName] = new Permission(permissionName, validationFunction);
+      }
+
+      /**
+       * Allows to define set of permissionNames with shared validation function on application configuration
+       *
+       * @param permissionNames {Array} Set of permission names
+       * @param validationFunction {Function} Function used to validate if permission is valid
+       */
+      function defineManyPermissions(permissionNames, validationFunction) {
+        if (!angular.isArray(permissionNames)) {
+          throw new TypeError('Parameter "permissionNames" name must be Array');
+        }
+
+        angular.forEach(permissionNames, function (permissionName) {
+          definePermission(permissionName, validationFunction);
+        });
+      }
+
+      /**
+       * Deletes permission
+       *
+       * @param permissionName {String} Name of defined permission
+       */
+      function removePermissionDefinition(permissionName) {
+        delete permissionStore[permissionName];
+      }
+
+      /**
+       * Checks if permission exists
+       *
+       * @param permissionName {String} Name of defined permission
+       * @returns {Boolean}
+       */
+      function hasPermissionDefinition(permissionName) {
+        return angular.isDefined(permissionStore[permissionName]);
+      }
+
+      /**
+       * Returns permission by it's name
+       *
+       * @returns {Object} Permissions collection
+       */
+      function getPermissionDefinition(permissionName) {
+        return permissionStore[permissionName];
+      }
+
+      /**
+       * Returns all permissions
+       *
+       * @returns {Object} Permissions collection
+       */
+      function getStore() {
+        return permissionStore;
+      }
+
+      /**
+       * Removes all permissions
+       */
+      function clearStore() {
+        permissionStore = {};
+      }
+    }]);
+}());
+(function () {
+  'use strict';
+
+  angular
+    .module('permission')
+    .service('RoleStore', ['Role', function (Role) {
+      var roleStore = {};
+
+      this.defineRole = defineRole;
+      this.getRoleDefinition = getRoleDefinition;
+      this.hasRoleDefinition = hasRoleDefinition;
+      this.removeRoleDefinition = removeRoleDefinition;
+      this.getStore = getStore;
+      this.clearStore = clearStore;
+
+      /**
+       * Allows to define role
+       *
+       * @param roleName {String} Name of defined role
+       * @param permissions {Array} Set of permission names
+       * @param [validationFunction] {Function} Function used to validate if permissions in role are valid
+       */
+      function defineRole(roleName, permissions, validationFunction) {
+        roleStore[roleName] = new Role(roleName, permissions, validationFunction);
+      }
+
+      /**
+       * Deletes role from store
+       *
+       * @param roleName {String} Name of defined permission
+       */
+      function removeRoleDefinition(roleName) {
+        delete roleStore[roleName];
+      }
+
+      /**
+       * Checks if role is defined in store
+       *
+       * @param roleName {String} Name of role
+       * @returns {Boolean}
+       */
+      function hasRoleDefinition(roleName) {
+        return angular.isDefined(roleStore[roleName]);
+      }
+
+      /**
+       * Returns role definition object by it's name
+       *
+       * @returns {Object} Role definition object
+       */
+      function getRoleDefinition(roleName) {
+        return roleStore[roleName];
+      }
+
+      /**
+       * Returns all role definitions
+       *
+       * @returns {Object} Defined roles collection
+       */
+      function getStore() {
+        return roleStore;
+      }
+
+      /**
+       * Removes all role definitions
+       */
+      function clearStore() {
+        roleStore = {};
+      }
+    }]);
+}());
+(function () {
+  'use strict';
+
+  /**
+   * Show/hide elements based on provided permissions
+   *
+   * @example
+   * <div permission only="'USER'"></div>
+   * <div permission only="['USER','ADMIN']" except="'MANAGER'"></div>
+   * <div permission except="'MANAGER'"></div>
+   */
+  angular
+    .module('permission')
+    .directive('permission', ['$log', 'Authorization', 'PermissionMap', function ($log, Authorization, PermissionMap) {
+      return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+          try {
+            Authorization
+              .authorize(new PermissionMap({
+                only: scope.$eval(attrs.only),
+                except: scope.$eval(attrs.except)
+              }), null)
+              .then(function () {
+                element.removeClass('ng-hide');
+              })
+              .catch(function () {
+                element.addClass('ng-hide');
+              });
+          } catch (e) {
+            element.addClass('ng-hide');
+            $log.error(e.message);
+          }
+        }
+      };
+    }]);
+}());
+
+(function () {
+  'use strict';
+
+  angular
+    .module('permission')
+    .service('Authorization', ['$q', 'PermissionMap', 'PermissionStore', 'RoleStore', function ($q, PermissionMap, PermissionStore, RoleStore) {
+      this.authorize = authorize;
+
+      /**
+       * Checks if provided permissions are acceptable
+       *
+       * @param permissionsMap {PermissionMap} Map of permission names
+       * @param [toParams] {Object} UI-Router params object
+       * @returns {promise} $q.promise object
+       */
+      function authorize(permissionsMap, toParams) {
+        return handleAuthorization(permissionsMap, toParams);
+      }
+
+      /**
+       * Handles authorization based on provided permissions map
+       * @private
+       *
+       * @param permissionsMap {Object} Map of permission names
+       * @param toParams {Object} UI-Router params object
+       * @returns {promise} $q.promise object
+       */
+      function handleAuthorization(permissionsMap, toParams) {
+        var deferred = $q.defer();
+
+        var exceptPromises = findMatchingPermissions(permissionsMap.except, toParams);
+
+        $q.all(exceptPromises)
+          .then(function (rejectedPermissions) {
+            // If any "except" permissions are found reject authorization
+            if (rejectedPermissions.length) {
+              deferred.reject(rejectedPermissions);
+            } else {
+              // If none go to checking "only" permissions
+              return $q.reject(null);
+            }
+          })
+          .catch(function () {
+            var onlyPromises = findMatchingPermissions(permissionsMap.only, toParams);
+            $q.all(onlyPromises)
+              .then(function (resolvedPermissions) {
+                deferred.resolve(resolvedPermissions);
+              })
+              .catch(function (rejectedPermission) {
+                deferred.reject(rejectedPermission);
+              });
+          });
+
+        return deferred.promise;
+      }
+
+      /**
+       * Performs iteration over list of defined permissions looking for matching roles
+       * @private
+       *
+       * @param permissionNames {Array} Set of permission names
+       * @param toParams {Object} UI-Router params object
+       * @returns {Array} Promise collection
+       */
+      function findMatchingPermissions(permissionNames, toParams) {
+        return permissionNames.map(function (permissionName) {
+          if (RoleStore.hasRoleDefinition(permissionName)) {
+            return handleRoleValidation(permissionName, toParams);
+          }
+
+          if (PermissionStore.hasPermissionDefinition(permissionName)) {
+            return handlePermissionValidation(permissionName, toParams);
+          }
+
+          if (permissionName) {
+            return $q.reject(permissionName);
+          }
+        });
+      }
+
+      /**
+       * Executes role validation checking
+       * @private
+       *
+       * @param roleName {String} Store permission key
+       * @param toParams {Object} UI-Router params object
+       * @returns {Promise}
+       */
+      function handleRoleValidation(roleName, toParams) {
+        var role = RoleStore.getRoleDefinition(roleName);
+        return role.validateRole(toParams);
+      }
+
+      /**
+       * Executes permission validation checking
+       * @private
+       *
+       * @param permissionName {String} Store permission key
+       * @param toParams {Object} UI-Router params object
+       * @returns {Promise}
+       */
+      function handlePermissionValidation(permissionName, toParams) {
+        var permission = PermissionStore.getPermissionDefinition(permissionName);
+        return permission.validatePermission(toParams);
+      }
+    }]);
+})();
+
 function LoginCtrl($scope, $state, authorization) {
   $scope.user;
   
@@ -39450,9 +40218,8 @@ angular.module('askCrm.login', ['askCrm', 'ngCookies'])
 .controller('LoginWithTokenCtrl', ['$scope', '$http', '$stateParams', 'authorization', LoginWithTokenCtrl])
 function LoginWithTokenCtrl ($scope, $http, $state, $stateParams, Api, authorization) {
 
-  console.log('$stateParams', $stateParams);
   $http.defaults.headers.common['Authorization'] = 'Bearer: ' + $stateParams.token;
-console.log($http.defaults.headers.common['Authorization']);
+
   var user = Api.Users().get({id: 'me'}, function () {
     authorization.setTokenAndUser($stateParams.token, user);
 
@@ -39474,14 +40241,7 @@ angular.module('askCrm.members', [
     .state('members', {
       url: '/members',
       abstract: true,
-      template: '<ui-view />',
-      resolve: {
-        authorize: ['authorization',
-          function(authorization) {
-            return authorization.authorize();
-          }
-        ]
-      }
+      template: '<ui-view />'
     })
 })
 angular.module('askCrm.pay', [
@@ -39540,6 +40300,310 @@ angular.module('askCrm.view2', ['ui.router'])
 .controller('View2Ctrl', [function() {
 
 }]);
+function MembersDetailCtrl ($scope, Api, member) {
+  $scope.paymentMethods = [];
+  $scope.member = member;
+
+  $scope.sendPaymentReminder = function(id) {
+    $scope.member.$sendPaymentReminder();
+  }
+
+  $scope.loadPaymentMethods = function() {
+    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
+      $scope.paymentMethods = data;
+    });
+  };
+
+  $scope.showPayMethod = function(payment) {
+    if(payment.group && $scope.groups.length) {
+      var selected = $filter('filter')($scope.groups, {id: member.group});
+      return selected.length ? selected[0].text : 'Not set';
+    } else {
+      return member.groupName || 'Not set';
+    }
+  };
+
+  $scope.addPayment = function () {
+    var today = new Date();
+
+    $scope.insertedPayment = {
+      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
+      amount: 0,
+      method: ''
+    }
+
+    $scope.member.payments.push($scope.insertedPayment);
+  }
+
+  $scope.savePayment = function (data) {
+    console.log('data', data);
+    data.member_id = member.id;
+    if (data.id) {
+      data.$update();
+    } else {
+      Api.Payments().save(data);
+    }
+  }
+}
+angular.module('askCrm.members.detail', [
+  'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+
+//  $urlRouterProvider.otherwise("/add-person");
+  $stateProvider
+    .state('members.detail', {
+      url: '/:id',
+      parent: 'members',
+      templateUrl: '/components/members/detail/members.detail.html',
+      controller: 'MembersDetailCtrl',
+      resolve: {
+        member: ['$stateParams', 'Api', function($stateParams, Api) {
+          return Api.Members().get($stateParams).$promise;
+        }]
+      }
+    })
+})
+
+.controller('MembersDetailCtrl', ['$scope', 'Api', 'member', MembersDetailCtrl])
+
+function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
+  $scope.$watch('file', function () {
+    console.log('file change');
+    $scope.upload($scope.file);
+  });
+
+  $scope.upload = function (file) {
+    if (!file) {
+      return;
+    }
+
+    if (!file.$error) {
+      Upload.upload({
+        url: 'http://ask-crm-api.app/api/v1/members/import',
+        data: {
+          file: file  
+        }
+      }).then(function (resp) {
+          $timeout(function() {
+              $scope.log = 'file: ' +
+              resp.config.data.file.name +
+              ', Response: ' + JSON.stringify(resp.data) +
+              '\n' + $scope.log;
+          });
+      }, null, function (evt) {
+          var progressPercentage = parseInt(100.0 *
+              evt.loaded / evt.total);
+          $scope.log = 'progress: ' + progressPercentage + 
+            '% ' + evt.config.data.file.name + '\n' + 
+            $scope.log;
+      });
+    }
+  };
+}
+angular.module('askCrm.members.import', [
+  'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+    .state('members.import', {
+      url: '/import',
+      templateUrl: '/components/members/import/members.import.html',
+      controller: 'MembersImportCtrl',
+      data: {
+        permissions: {
+          only: ['admin']
+        }
+      }
+    })
+})
+
+
+.controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'Api', MembersImportCtrl])
+function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api, members) {
+  $scope.members = members;
+
+  // Set filter options
+  $scope.filterOptions = [
+    {
+      name: 'Personnummer',
+      value: 'personal_number'
+    },
+    {
+      name: 'E-post',
+      value: 'email'
+    },
+    {
+      name: 'Efternamn',
+      value: 'last_name'
+    },
+  ];
+
+  var currentFilter = $scope.filterOptions.find(function(_obj){ return typeof $stateParams[_obj.value] !== 'undefined'; });
+
+  if (currentFilter) {
+    $scope.filterType = currentFilter;
+    $scope.filterQuery = $stateParams[currentFilter.value];
+  } else {
+    $scope.filterType = $scope.filterOptions[0];
+  }
+
+  // Set scope variables for sort parameters
+  var sortParams = ['id', 'personal_number'];
+
+  for (var i=0;i<sortParams.length;i++) {
+    var _prop = 'sortBy' + sortParams[i][0].toUpperCase() + sortParams[i].slice(1);
+
+    if (sortParams[i] === 'id') {
+      $scope[_prop] = $stateParams.sort === '-' + sortParams[i] ? sortParams[i] : '-' + sortParams[i];
+    } else {
+      $scope[_prop] = $stateParams.sort === sortParams[i] ? '-' + sortParams[i] : sortParams[i];
+    }
+  }
+
+  $scope.goToMember = function (id) {
+    $state.go('members.detail', {id: id});
+  }
+
+  $scope.goToMemberEdit = function (id) {
+    $state.go('members.edit', {id: id});
+  }
+
+  $scope.search = function () {
+    $location.search($scope.filterType.value, $scope.filterQuery);
+    return;
+    var _params = {};
+    _params[$scope.filterType.value] = $scope.filterQuery;
+    $state.go($state.current, _params, {
+      reload: true,
+      notify: true,
+      inherit: false
+    });
+  }
+
+  $scope.resetLocation = function (resetKey) {
+    $state.current.reloadOnSearch = false;
+
+    $location.search(resetKey, null);
+    $scope.filterQuery = null;
+
+    $timeout(function () {
+      $state.current.reloadOnSearch = true;
+    })
+  }
+}
+angular.module('askCrm.members.list', [
+  'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+    .state('members.list', {
+      url: '/list?sort&personal_number&email&last_name',
+      templateUrl: '/components/members/list/members.list.html',
+      controller: 'MembersListCtrl',
+      reloadOnSearch: true,
+      resolve: {
+        members: ['$stateParams', 'Api', function($stateParams, Api) {
+          console.log('$stateParams', $stateParams);
+          return Api.Members().query($stateParams);
+        }]
+      },
+      data: {
+        permissions: {
+          only: ['admin']
+        }
+      }
+
+    })
+})
+
+
+.controller('MembersListCtrl', ['$scope', '$state', '$stateParams', '$location', '$timeout', 'Api', 'members', MembersListCtrl])
+function MembersAddPaymentCtrl ($scope, Api, member) {
+  $scope.member = member;
+}
+angular.module('askCrm.members.payment', [
+  'askCrm'
+  ])
+
+.config(function($stateProvider, $urlRouterProvider) {
+
+//  $urlRouterProvider.otherwise("/add-person");
+  $stateProvider
+    .state('members.addPayment', {
+      url: '/:id/pay',
+      abstract: true,
+      parent: 'members',
+      templateUrl: '/components/members/payment/members.payment.html',
+      controller: 'MembersAddPaymentCtrl',
+      resolve: {
+        member: ['$stateParams', 'Api', function($stateParams, Api) {
+          return Api.Members().get($stateParams).$promise;
+        }]
+      }
+    })
+    .state('members.addPayment.step1', {
+      url: '',
+      parent: 'members.addPayment',
+      templateUrl: '/components/members/payment/step1/members.payment.step1.html',
+      controller: 'MembersAddPaymentStepOneCtrl'
+    })
+    .state('members.addPayment.step3', {
+      url: '/confirm',
+      parent: 'members.addPayment',
+      templateUrl: '/components/members/payment/step3/members.payment.step3.html',
+      controller: 'MembersAddPaymentStepThreeCtrl'
+    })
+    .state('members.addPayment.step2', {
+      url: '/:payment_method_id',
+      parent: 'members.addPayment',
+      templateUrl: '/components/members/payment/step2/members.payment.step2.html',
+      controller: 'MembersAddPaymentStepTwoCtrl'
+    })
+    .state('payments', {
+      url: '/payments?klarna_order',
+      controller: 'PaymentsCtrl'
+    })
+})
+
+.controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
+.controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
+.controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
+.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', MembersAddPaymentStepThreeCtrl])
+.controller('PaymentsCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentsCtrl])
+
+.directive('evaluateScript', function($compile, $parse){
+  return {
+    link: function(scope, element, attr){
+      var parsed = $parse(attr.ngBindHtml);
+      function getStringValue() { return (parsed(scope) || '').toString(); }
+
+      //Recompile if the template changes
+      scope.$watch(getStringValue, function(value) {
+        var code = element.find('script');
+        if (code) {
+          var f = new Function(code.html());
+          f();
+        }
+      });
+    }         
+  }
+});
+function PaymentsCtrl($scope, $state, $stateParams, Api) {
+  var _split = $stateParams.klarna_order.split('/'),
+      klarna_id = _split[_split.length-1];
+  console.log('$stateParams', klarna_id); 
+
+  var payment = Api.Payments().query({
+    external_id: klarna_id
+  }, function () {
+    console.log('payment.member_id', payment[0].member_id);
+    $state.go('members.addPayment.step3', {id: payment[0].member_id});
+  });
+}
 function MembersEditCtrl($scope, Api, member) {
   $scope.member = {};
   $scope.countries;
@@ -39676,302 +40740,6 @@ angular.module('askCrm.members.edit', [
     }
   };
 });
-function MembersDetailCtrl ($scope, Api, member) {
-  $scope.paymentMethods = [];
-  $scope.member = member;
-
-  $scope.sendPaymentReminder = function(id) {
-    $scope.member.$sendPaymentReminder();
-  }
-
-  $scope.loadPaymentMethods = function() {
-    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
-      $scope.paymentMethods = data;
-    });
-  };
-
-  $scope.showPayMethod = function(payment) {
-    if(payment.group && $scope.groups.length) {
-      var selected = $filter('filter')($scope.groups, {id: member.group});
-      return selected.length ? selected[0].text : 'Not set';
-    } else {
-      return member.groupName || 'Not set';
-    }
-  };
-
-  $scope.addPayment = function () {
-    var today = new Date();
-
-    $scope.insertedPayment = {
-      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
-      amount: 0,
-      method: ''
-    }
-
-    $scope.member.payments.push($scope.insertedPayment);
-  }
-
-  $scope.savePayment = function (data) {
-    console.log('data', data);
-    data.member_id = member.id;
-    if (data.id) {
-      data.$update();
-    } else {
-      Api.Payments().save(data);
-    }
-  }
-}
-angular.module('askCrm.members.detail', [
-  'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-
-//  $urlRouterProvider.otherwise("/add-person");
-  $stateProvider
-    .state('members.detail', {
-      url: '/:id',
-      parent: 'members',
-      templateUrl: '/components/members/detail/members.detail.html',
-      controller: 'MembersDetailCtrl',
-      resolve: {
-        member: ['$stateParams', 'Api', function($stateParams, Api) {
-          return Api.Members().get($stateParams).$promise;
-        }]
-      }
-    })
-})
-
-.controller('MembersDetailCtrl', ['$scope', 'Api', 'member', MembersDetailCtrl])
-
-function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api, members) {
-  $scope.members = members;
-
-  // Set filter options
-  $scope.filterOptions = [
-    {
-      name: 'Personnummer',
-      value: 'personal_number'
-    },
-    {
-      name: 'E-post',
-      value: 'email'
-    },
-    {
-      name: 'Efternamn',
-      value: 'last_name'
-    },
-  ];
-
-  var currentFilter = $scope.filterOptions.find(function(_obj){ return typeof $stateParams[_obj.value] !== 'undefined'; });
-
-  if (currentFilter) {
-    $scope.filterType = currentFilter;
-    $scope.filterQuery = $stateParams[currentFilter.value];
-  } else {
-    $scope.filterType = $scope.filterOptions[0];
-  }
-
-  // Set scope variables for sort parameters
-  var sortParams = ['id', 'personal_number'];
-
-  for (var i=0;i<sortParams.length;i++) {
-    var _prop = 'sortBy' + sortParams[i][0].toUpperCase() + sortParams[i].slice(1);
-
-    if (sortParams[i] === 'id') {
-      $scope[_prop] = $stateParams.sort === '-' + sortParams[i] ? sortParams[i] : '-' + sortParams[i];
-    } else {
-      $scope[_prop] = $stateParams.sort === sortParams[i] ? '-' + sortParams[i] : sortParams[i];
-    }
-  }
-
-  $scope.goToMember = function (id) {
-    $state.go('members.detail', {id: id});
-  }
-
-  $scope.goToMemberEdit = function (id) {
-    $state.go('members.edit', {id: id});
-  }
-
-  $scope.search = function () {
-    $location.search($scope.filterType.value, $scope.filterQuery);
-    return;
-    var _params = {};
-    _params[$scope.filterType.value] = $scope.filterQuery;
-    $state.go($state.current, _params, {
-      reload: true,
-      notify: true,
-      inherit: false
-    });
-  }
-
-  $scope.resetLocation = function (resetKey) {
-    $state.current.reloadOnSearch = false;
-
-    $location.search(resetKey, null);
-    $scope.filterQuery = null;
-
-    $timeout(function () {
-      $state.current.reloadOnSearch = true;
-    })
-  }
-}
-angular.module('askCrm.members.list', [
-  'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider
-    .state('members.list', {
-      url: '/list?sort&personal_number&email&last_name',
-      templateUrl: '/components/members/list/members.list.html',
-      controller: 'MembersListCtrl',
-      reloadOnSearch: true,
-      resolve: {
-        members: ['$stateParams', 'Api', function($stateParams, Api) {
-          console.log('$stateParams', $stateParams);
-          return Api.Members().query($stateParams);
-        }]
-      }
-    })
-})
-
-
-.controller('MembersListCtrl', ['$scope', '$state', '$stateParams', '$location', '$timeout', 'Api', 'members', MembersListCtrl])
-function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
-  $scope.$watch('file', function () {
-    console.log('file change');
-    $scope.upload($scope.file);
-  });
-
-  $scope.upload = function (file) {
-    if (!file) {
-      return;
-    }
-
-    if (!file.$error) {
-      Upload.upload({
-        url: 'http://ask-crm-api.app/api/v1/members/import',
-        data: {
-          file: file  
-        }
-      }).then(function (resp) {
-          $timeout(function() {
-              $scope.log = 'file: ' +
-              resp.config.data.file.name +
-              ', Response: ' + JSON.stringify(resp.data) +
-              '\n' + $scope.log;
-          });
-      }, null, function (evt) {
-          var progressPercentage = parseInt(100.0 *
-              evt.loaded / evt.total);
-          $scope.log = 'progress: ' + progressPercentage + 
-            '% ' + evt.config.data.file.name + '\n' + 
-            $scope.log;
-      });
-    }
-  };
-}
-angular.module('askCrm.members.import', [
-  'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider
-    .state('members.import', {
-      url: '/import',
-      templateUrl: '/components/members/import/members.import.html',
-      controller: 'MembersImportCtrl'
-    })
-})
-
-
-.controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'Api', MembersImportCtrl])
-function MembersAddPaymentCtrl ($scope, Api, member) {
-  $scope.member = member;
-}
-angular.module('askCrm.members.payment', [
-  'askCrm'
-  ])
-
-.config(function($stateProvider, $urlRouterProvider) {
-
-//  $urlRouterProvider.otherwise("/add-person");
-  $stateProvider
-    .state('members.addPayment', {
-      url: '/:id/pay',
-      abstract: true,
-      parent: 'members',
-      templateUrl: '/components/members/payment/members.payment.html',
-      controller: 'MembersAddPaymentCtrl',
-      resolve: {
-        member: ['$stateParams', 'Api', function($stateParams, Api) {
-          return Api.Members().get($stateParams).$promise;
-        }],
-        authorize: function() {
-          return null;
-        }
-      }
-    })
-    .state('members.addPayment.step1', {
-      url: '',
-      parent: 'members.addPayment',
-      templateUrl: '/components/members/payment/step1/members.payment.step1.html',
-      controller: 'MembersAddPaymentStepOneCtrl'
-    })
-    .state('members.addPayment.step3', {
-      url: '/confirm',
-      parent: 'members.addPayment',
-      templateUrl: '/components/members/payment/step3/members.payment.step3.html',
-      controller: 'MembersAddPaymentStepThreeCtrl'
-    })
-    .state('members.addPayment.step2', {
-      url: '/:payment_method_id',
-      parent: 'members.addPayment',
-      templateUrl: '/components/members/payment/step2/members.payment.step2.html',
-      controller: 'MembersAddPaymentStepTwoCtrl'
-    })
-    .state('payments', {
-      url: '/payments?klarna_order',
-      controller: 'PaymentsCtrl'
-    })
-})
-
-.controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
-.controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
-.controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
-.controller('MembersAddPaymentStepThreeCtrl', ['$scope', '$stateParams', 'Api', 'member', MembersAddPaymentStepThreeCtrl])
-.controller('PaymentsCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentsCtrl])
-
-.directive('evaluateScript', function($compile, $parse){
-  return {
-    link: function(scope, element, attr){
-      var parsed = $parse(attr.ngBindHtml);
-      function getStringValue() { return (parsed(scope) || '').toString(); }
-
-      //Recompile if the template changes
-      scope.$watch(getStringValue, function(value) {
-        var code = element.find('script');
-        if (code) {
-          var f = new Function(code.html());
-          f();
-        }
-      });
-    }         
-  }
-});
-function PaymentsCtrl($scope, $state, $stateParams, Api) {
-  var _split = $stateParams.klarna_order.split('/'),
-      klarna_id = _split[_split.length-1];
-  console.log('$stateParams', klarna_id); 
-
-  var payment = Api.Payments().query({
-    external_id: klarna_id
-  }, function () {
-    console.log('payment.member_id', payment[0].member_id);
-    $state.go('members.addPayment.step3', {id: payment[0].member_id});
-  });
-}
 function PayParseTokenCtrl($scope, $stateParams, Api) {
   var paymentReminder = Api.Members().getPaymentReminder($stateParams);
 
@@ -39993,12 +40761,6 @@ angular.module('askCrm.pay.parseToken', [
 })
 
 .controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
-function MembersAddPaymentStepOneCtrl($scope, Api, member) {
-  console.log('e');
-  $scope.paymentMethods = Api.PaymentMethods().query({
-    online_payments: 1
-  });
-}
 function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
   var info = Api.Members().getPaymentInfo($stateParams, function() {
     $scope.iframe = $sce.trustAsHtml(info.next_url);
@@ -40006,6 +40768,12 @@ function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) 
 }
 function MembersAddPaymentStepThreeCtrl ($scope, $stateParams, Api, member) {
   
+}
+function MembersAddPaymentStepOneCtrl($scope, Api, member) {
+  console.log('e');
+  $scope.paymentMethods = Api.PaymentMethods().query({
+    online_payments: 1
+  });
 }
 angular.module('askCrm.api', [
   'ngResource',
@@ -40112,60 +40880,7 @@ angular.module('askCrm.postnummer', ['ngResource'])
   return $resource('http://yourmoneyisnowmymoney.com/api/zipcodes/');
 }]);
 
-angular.module("templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("index-async.html","<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <link rel=\"stylesheet\" href=\"bower_components/html5-boilerplate/css/normalize.css\">\n  <link rel=\"stylesheet\" href=\"bower_components/html5-boilerplate/css/main.css\">\n  <style>\n    [ng-cloak] {\n      display: none;\n    }\n  </style>\n  <script src=\"bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js\"></script>\n  <script>\n    // include angular loader, which allows the files to load in any order\n    //@@NG_LOADER_START@@\n    // You need to run `npm run update-index-async` to inject the angular async code here\n    //@@NG_LOADER_END@@\n\n    // include a third-party async loader library\n    /*!\n     * $script.js v1.3\n     * https://github.com/ded/script.js\n     * Copyright: @ded & @fat - Dustin Diaz, Jacob Thornton 2011\n     * Follow our software http://twitter.com/dedfat\n     * License: MIT\n     */\n    !function(a,b,c){function t(a,c){var e=b.createElement(\"script\"),f=j;e.onload=e.onerror=e[o]=function(){e[m]&&!/^c|loade/.test(e[m])||f||(e.onload=e[o]=null,f=1,c())},e.async=1,e.src=a,d.insertBefore(e,d.firstChild)}function q(a,b){p(a,function(a){return!b(a)})}var d=b.getElementsByTagName(\"head\")[0],e={},f={},g={},h={},i=\"string\",j=!1,k=\"push\",l=\"DOMContentLoaded\",m=\"readyState\",n=\"addEventListener\",o=\"onreadystatechange\",p=function(a,b){for(var c=0,d=a.length;c<d;++c)if(!b(a[c]))return j;return 1};!b[m]&&b[n]&&(b[n](l,function r(){b.removeEventListener(l,r,j),b[m]=\"complete\"},j),b[m]=\"loading\");var s=function(a,b,d){function o(){if(!--m){e[l]=1,j&&j();for(var a in g)p(a.split(\"|\"),n)&&!q(g[a],n)&&(g[a]=[])}}function n(a){return a.call?a():e[a]}a=a[k]?a:[a];var i=b&&b.call,j=i?b:d,l=i?a.join(\"\"):b,m=a.length;c(function(){q(a,function(a){h[a]?(l&&(f[l]=1),o()):(h[a]=1,l&&(f[l]=1),t(s.path?s.path+a+\".js\":a,o))})},0);return s};s.get=t,s.ready=function(a,b,c){a=a[k]?a:[a];var d=[];!q(a,function(a){e[a]||d[k](a)})&&p(a,function(a){return e[a]})?b():!function(a){g[a]=g[a]||[],g[a][k](b),c&&c(d)}(a.join(\"|\"));return s};var u=a.$script;s.noConflict=function(){a.$script=u;return this},typeof module!=\"undefined\"&&module.exports?module.exports=s:a.$script=s}(this,document,setTimeout)\n\n    // load all of the dependencies asynchronously.\n    $script([\n      \'bower_components/angular/angular.js\',\n      \'bower_components/angular-route/angular-route.js\',\n      \'app.js\',\n      \'view1/view1.js\',\n      \'view2/view2.js\',\n      \'components/version/version.js\',\n      \'components/version/version-directive.js\',\n      \'components/version/interpolate-filter.js\'\n    ], function() {\n      // when all is done, execute bootstrap angular application\n      angular.bootstrap(document, [\'myApp\']);\n    });\n  </script>\n  <title>My AngularJS App</title>\n  <link rel=\"stylesheet\" href=\"app.css\">\n</head>\n<body ng-cloak>\n  <ul class=\"menu\">\n    <li><a href=\"#/view1\">view1</a></li>\n    <li><a href=\"#/view2\">view2</a></li>\n  </ul>\n\n  <div ng-view></div>\n\n  <div>Angular seed app: v<span app-version></span></div>\n\n</body>\n</html>\n");
-$templateCache.put("components/view1/view1.html","<p>This is the partial for view 1.</p>\n");
-$templateCache.put("components/view2/view2.html","<p>This is the partial for view 2.</p>\n<p>\n  Showing of \'interpolate\' filter:\n  {{ \'Current version is v%VERSION%.\' | interpolate }}\n</p>\n");
-$templateCache.put("components/login/login.html","<h1>Logga in</h1>\n<form ng-submit=\"login()\">\n  <div class=\"form-group\">\n    <input type=\"text\" ng-model=\"user.email\" placeholder=\"Användarnamn\" />\n  </div>\n  <div class=\"form-group\">\n    <input type=\"password\" ng-model=\"user.password\" placeholder=\"Lösenord\" />\n  </div>\n  <button type=\"submit\" class=\"btn btn-default\">Logga in</button>\n\n</form>");
-$templateCache.put("components/members/detail/members.detail.html","<a class=\"btn btn-default pull-right\" ui-sref=\"members.edit({id: member.id})\">Redigera</a>\n<h1>{{member.first_name}} {{member.last_name}}</h1>\n\n<h2>Inbetalningar</h2>\n<table class=\"table table-bordered table-hover table-condensed\">\n  <tr>\n    <th>Id</th>\n    <th>Datum</th>\n    <th>Summa</th>\n    <th>Betalningsmetod</th>\n    <th>Registrerad av</th>\n    <th>Ändra</th>\n  </tr>\n  <tr ng-repeat=\"payment in member.payments\">\n    <td>{{payment.id}}</td>\n    <td>\n      <span editable-date=\"payment.payment_date\" e-name=\"payment_date\" e-form=\"rowform\" e-required>\n        {{ payment.payment_date }}\n      </span>\n    </td>\n    <td>\n      <span editable-number=\"payment.amount\" e-name=\"amount\" e-form=\"rowform\" e-required>\n        {{payment.amount}}\n      </span>\n    </td>\n    <td>\n        <span editable-select=\"payment.payment_method_id\" e-name=\"payment_method_id\" onshow=\"loadPaymentMethods()\" e-form=\"rowform\" e-ng-options=\"p.id as p.name for p in paymentMethods\">\n          {{payment.payment_method.name}}\n        </span>\n    </td>\n    <td>\n      <a ui-sref=\"members.detail({id: payment.created_by.id})\">{{payment.created_by.first_name}} {{payment.created_by.last_name}}</a>\n    </td>\n    <td>\n      <form editable-form name=\"rowform\" onbeforesave=\"savePayment($data, member.id)\" ng-show=\"rowform.$visible\" class=\"form-buttons form-inline\" shown=\"insertedPayment == payment\">\n        <button type=\"submit\" ng-disabled=\"rowform.$waiting\" class=\"btn btn-primary\">\n          save\n        </button>\n        <button type=\"button\" ng-disabled=\"rowform.$waiting\" ng-click=\"rowform.$cancel()\" class=\"btn btn-default\">\n          cancel\n        </button>\n      </form>\n      <div class=\"buttons\" ng-show=\"!rowform.$visible\">\n        <button class=\"btn btn-primary\" ng-click=\"rowform.$show()\">edit</button>\n        <button class=\"btn btn-danger\" ng-click=\"removeMember($index)\">del</button>\n      </div> \n    </td>\n  </tr>\n</table>\n<p><a class=\"btn btn-success\" ng-click=\"sendPaymentReminder()\">Påminn medlem om betalning</a></p>\n<p><a class=\"btn btn-success\" ng-click=\"addPayment()\">Lägg till betalning</a></p>");
-$templateCache.put("components/members/edit/members.edit.html","<form class=\"form-horizontal\">\n  <div class=\"form-group\">\n    <label>Id</label>\n    <input type=\"number\" class=\"form-control\" placeholder=\"Id\" ng-model=\"member.id\" readonly>\n    <label>Personnummer</label>\n    <input class=\"form-control\" placeholder=\"YYYYMMDDXXXX\" ng-model=\"member.personal_number\">\n    <label>Förnamn</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Förnamn\" ng-model=\"member.first_name\">\n    <label>Efternamn</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Efternamn\" ng-model=\"member.last_name\">\n    <label>Kön</label>\n    <select ng-model=\"member.gender_id\">\n      <option ng-repeat=\"g in genders\" value=\"{{g.id}}\" ng-selected=\"member.gender_id == g.id\">{{g.name}}</option>\n    </select>\n    <label>Land</label>\n    <select ng-model=\"member.country_id\">\n      <option ng-repeat=\"c in countries\" value=\"{{c.id}}\" ng-selected=\"member.country_id == c.id\">{{c.name}}</option>\n    </select>\n    <div ng-if=\"countries\">\n      <label>Adress</label>\n      <input type=\"text\" class=\"form-control\" placeholder=\"Adress\" ng-model=\"member.street_address\">\n      <label>Postnummer</label>\n      <input type=\"text\" class=\"form-control\" placeholder=\"Postnummer\" ng-model=\"member.postcode\" ng-blur=\"checkZipcodes()\">\n      <label>Stad</label>\n      <input type=\"text\" class=\"form-control\" placeholder=\"Stad\" ng-model=\"member.city\">\n    </div>\n    <label>Telefonnummer</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Telefon\" ng-model=\"member.phone\">\n    <label>E-post</label>\n    <input type=\"email\" class=\"form-control\" placeholder=\"E-post\" ng-model=\"member.email\">\n    <label>AIK-Forum</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"AIK-Forum\" ng-model=\"member.aik_forum_id\" strip-media-url=\"aikforum\">\n    <label>Facebook</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Facebook\" ng-model=\"member.facebook_id\" strip-media-url=\"facebook\">\n    <label>Twitter</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Twitter\" ng-model=\"member.twitter_id\" strip-media-url=\"twitter\">\n    <label>Medlem sedan</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Medlem sedan\" ng-model=\"member.member_since\">\n    <label>Senaste betalning</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Senaste betalning\" ng-model=\"member.paiddate\">\n    <label>Medlemskap utgår</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Medlemskap utgår\" ng-model=\"member.expiredate\">\n    <!--\n    <label>Betalningsmetod</label>\n    <select ng-model=\"member.paymentMethods\" ng-options=\"p.name for p in paymentMethods\"></select>\n    <label>Admin-nivå</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Admin-nivå\" ng-model=\"member.adminlevel_id\">\n    -->\n    <label>Kommentar</label>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Kommentar\" ng-model=\"member.comment\">\n  </div>\n\n  <button type=\"submit\" class=\"btn btn-default\" ng-click=\"submit()\">Skicka</button>\n</form>");
-$templateCache.put("components/members/import/members.import.html","<div \n  ngf-drop \n  ngf-select \n  ng-model=\"file\" \n  class=\"drop-box\" \n  ngf-drag-over-class=\"\'dragover\'\" \n  ngf-multiple=\"false\" \n  ngf-allow-dir=\"true\"\n  accept=\"application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\" \n  style=\"width: 400px; height: 200px; border: 10px dashed black; text-align: center; padding-top: 40px;\">\n    Släpp Excel-filen här för att ladda upp\n</div>\n<p>{{log}}</p>\n    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>\n    Files:\n    <ul>\n        <li ng-repeat=\"f in files\" style=\"font:smaller\">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>\n    </ul>");
-$templateCache.put("/components/members/list/members.list.html","<a ui-sref=\"members.add\" class=\"btn btn-success pull-right\">Lägg till användare</a>\n<form ng-submit=\"search()\" class=\"form-inline\">\n  <input type=\"text\" class=\"form-control\" placeholder=\"Sök\" ng-model=\"filterQuery\" />\n  <select \n    ng-model=\"filterType\" ng-options=\"option.name for option in filterOptions\" class=\"form-control\" ng-change=\"resetLocation(\'{{filterType.value}}\')\">\n  </select>\n  <input type=\"submit\" class=\"form-control btn btn-default\" value=\"Sök\" />\n</form>\n\n\n<table class=\"table table-striped\">\n  <thead>\n    <tr>\n      <td><a ui-sref=\"members.list({sort: sortById})\">Id</a></td>\n      <td><a ui-sref=\"members.list({sort: sortByPersonal_number})\">Personnummer</a></td>\n      <td>Namn</td>\n      <td>E-post</td>\n      <td>Telefonnummer</td>\n      <td>Facebook</td>\n      <td>Twitter</td>\n      <td>AIK-Forum</td>\n      <td>Medlem sedan</td>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat=\"member in members\" ng-click=\"goToMember(member.id)\">\n      <td ng-bind=\"member.id\" sortable=\"id\" filter=\"{\'id\': \'text\'}\"></td>\n      <td ng-bind=\"member.personal_number\" sortable=\"personal_number\"></td>\n      <td>{{member.first_name}} {{member.last_name}}</td>\n      <td ng-bind=\"member.email\"></td>\n      <td ng-bind=\"member.phone\"></td>\n      <td ng-bind=\"member.facebook_id\"></td>\n      <td ng-bind=\"member.twitter_id\"></td>\n      <td ng-bind=\"member.aik_forum_id\"></td>\n      <td ng-bind=\"member.member_since\"></td>\n      <td>\n        <button type=\"button\" class=\"btn btn-default\" aria-label=\"Left Align\" ng-click=\"goToMemberEdit(member.id)\">\n          Redigera\n        </button>\n      </td>\n    </tr>\n  </tbody>\n</table>");
-$templateCache.put("components/members/payment/members.payment.html","<h1>{{member.first_name}} {{member.last_name}}</h1>\n\n<ui-view />");
-$templateCache.put("components/pay/parseToken/pay.parseToken.html","asd");
-$templateCache.put("components/members/payment/step2/members.payment.step2.html","Betala!\n\n<div ng-bind-html=\"iframe\" evaluate-script></div>");
-$templateCache.put("components/members/payment/step1/members.payment.step1.html","<ul>\n  <li ng-repeat=\"method in paymentMethods\"><a ui-sref=\"members.addPayment.step2({payment_method_id: method.id})\">{{method.name}}</a></li>\n</ul>");
-$templateCache.put("components/members/payment/step3/members.payment.step3.html","");}]);
-
-'use strict';
-
-var askCrm = angular.module('askCrm', [
-  'ui.router',
-  'askCrm.pay',
-  'askCrm.members',
-  'askCrm.api',
-  'askCrm.login',
-  'xeditable',
-  'checklist-model',
-  'ngCookies',
-  'ngFileUpload'
-])
-
-// The templates module is only used in /dist
-var lazyModules = ['templates'];
-angular.forEach(lazyModules, function(dependency) {
-  var m;
-  try {
-    m = angular.module(dependency);
-  } catch (e) {}
-
-  if (m) {
-    askCrm.requires.push(dependency);
-  }
-});
-
-askCrm.constant('APIURI', appConfig.apiUri)
-
-.config(['$urlRouterProvider', '$locationProvider', function($urlRouterProvider, $locationProvider) {
-  $urlRouterProvider.otherwise('/login');
-
-  $locationProvider.html5Mode(false);
-}])
-
-.filter('currentdate',['$filter',  function($filter) {
-    return function() {
-        return $filter('date')(new Date(), 'yyyy-MM-dd');
-    };
-}])
+angular.module('kPrincipal', [])
 
 .factory('principal', ['$q', '$http', '$timeout', '$cookies', 'Api',
   function($q, $http, $timeout, $cookies, Api) {
@@ -40180,6 +40895,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
         return _authenticated;
       },
       isInRole: function(role) {
+        console.log('isInRole', role);
+        console.log('_identity.roles', _identity);
         if (!_authenticated || !_identity.roles) return false;
 
         for (var i=0;i<_identity.roles.length;i++) {
@@ -40249,6 +40966,81 @@ askCrm.constant('APIURI', appConfig.apiUri)
   }
 ])
 
+
+'use strict';
+
+var askCrm = angular.module('askCrm', [
+  'permission',
+  'ui.router',
+  'askCrm.pay',
+  'askCrm.members',
+  'askCrm.api',
+  'askCrm.login',
+  'kPrincipal',
+  'xeditable',
+  'checklist-model',
+  'ngCookies',
+  'ngFileUpload'
+])
+
+// The templates module is only used in /dist
+var lazyModules = ['templates'];
+angular.forEach(lazyModules, function(dependency) {
+  var m;
+  try {
+    m = angular.module(dependency);
+  } catch (e) {}
+
+  if (m) {
+    askCrm.requires.push(dependency);
+  }
+});
+
+askCrm.constant('APIURI', appConfig.apiUri)
+
+.config(['$urlRouterProvider', '$locationProvider', function($urlRouterProvider, $locationProvider) {
+  $urlRouterProvider.otherwise('/login');
+
+  $locationProvider.html5Mode(appConfig.html5Mode);
+}])
+
+.run(['$rootScope', '$q', 'PermissionStore', 'principal', function ($rootScope, $q, PermissionStore, principal) {
+  principal.identity().then(function(data) {
+    $rootScope.currentUser = data;
+  });
+  // Define anonymous permission
+  PermissionStore
+    .definePermission('anonymous', function (stateParams) {
+      var deferred = $q.defer();
+      principal.identity().then(function() {
+        // If the returned value is *truthy* then the user has the permission, otherwise they don't
+        if (!principal.isAuthenticated) {
+          return deferred.resolve(); // Is anonymous
+        }
+        return deferred.reject();
+      })
+      return deferred.promise;
+    });
+  PermissionStore
+    .definePermission('admin', function (stateParams) {
+      var deferred = $q.defer();
+      principal.identity().then(function() {
+        if (principal.isInRole('admin')) {
+          deferred.resolve();
+        } else {
+          deferred.reject();
+        }
+      });
+      return deferred.promise;
+    });
+}])
+
+.filter('currentdate',['$filter',  function($filter) {
+    return function() {
+        return $filter('date')(new Date(), 'yyyy-MM-dd');
+    };
+}])
+
 .factory('authorization', ['$rootScope', '$state', '$q', '$http', '$cookies', 'principal', 'APIURI',
   function($rootScope, $state, $q, $http, $cookies, principal, APIURI) {
     return {
@@ -40287,6 +41079,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
             .success(function (data, status, headers, config) {
                 $cookies.token = data.token;
                 $cookies.user_id = data.user.id;
+                principal.authenticate(data.user);
                 deferred.resolve(true);
             })
             .error(function (data, status, headers, config) {

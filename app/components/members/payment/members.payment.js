@@ -15,10 +15,7 @@ angular.module('askCrm.members.payment', [
       resolve: {
         member: ['$stateParams', 'Api', function($stateParams, Api) {
           return Api.Members().get($stateParams).$promise;
-        }],
-        authorize: function() {
-          return null;
-        }
+        }]
       }
     })
     .state('members.addPayment.step1', {

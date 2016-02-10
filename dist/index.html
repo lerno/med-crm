@@ -30,12 +30,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">ASK CRM</a>
+          <a class="navbar-brand" href="#">
+            <img src="/images/logo.png" width="60" />
+          </a>
         </div>
     
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
+          <ul class="nav navbar-nav" permission only="'admin'">
             <li ui-sref-active="active"><a ui-sref="members.list">Lista medlemmar<span class="sr-only">(current)</span></a></li>
             <li ui-sref-active="active"><a ui-sref="members.add">Lägg till medlem</a></li>
             <li ui-sref-active="active"><a ui-sref="members.import">Importera medlemmar</a></li>

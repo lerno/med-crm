@@ -9,7 +9,9 @@ var gulp = require('gulp'),
     inject = require('gulp-inject'),
     sourcemaps = require('gulp-sourcemaps'),
     postcss = require('gulp-postcss'),
-    atImport = require('postcss-import');
+    atImport = require('postcss-import'),
+    argv = require('yargs').argv, // for args parsing
+    spawn = require('child_process').spawn;;
 
 var config = {
     sassPath: './sass',
@@ -19,7 +21,7 @@ var config = {
 
 gulp.task('sass', function() {
   return gulp
-    .src([config.sassPath + '/base.scss'])
+    .src(config.sassPath + '/**/*.scss')
     .pipe(sourcemaps.init())
     .pipe(sass({
         style: 'compressed',
@@ -53,6 +55,7 @@ gulp.task('js', function() {
       config.bowerDir + '/angular-xeditable/dist/js/xeditable.js',
       config.bowerDir + '/ng-file-upload-shim/ng-file-upload-shim.js',
       config.bowerDir + '/ng-file-upload/ng-file-upload.js',
+      config.bowerDir + '/angular-permission/dist/angular-permission.js',
       './app/components/**/*.js',
       '!./app/components/**/*_test.js',
       './app/shared/**/*.js',
@@ -85,7 +88,7 @@ gulp.task('watch', function () {
   });
 */
   var sassWatcher = gulp.watch([
-    config.sassPath + '/base.scss'
+    config.sassPath + '/*.scss'
   ], ['sass']);
 /*
   sassWatcher.on('change', function (event) {
@@ -185,6 +188,21 @@ gulp.task('deploy', function () {
 
 });
 
+gulp.task('auto-reload', function() {
+  var p;
+
+  gulp.watch('gulpfile.js', spawnChildren);
+  spawnChildren();
+
+  function spawnChildren(e) {
+    // kill previous spawned process
+    if(p) { p.kill(); }
+
+    // `spawn` a child `gulp` process linked to the parent `stdio`
+    p = spawn('gulp', ['build', 'connect', 'watch'], {stdio: 'inherit'});
+  }
+});
+
 gulp.task('run-dist', ['deploy', 'connect-dist']);
 gulp.task('build', ['js', 'sass']);
-gulp.task('default', ['connect', 'watch']);
+gulp.task('default', ['auto-reload']);
