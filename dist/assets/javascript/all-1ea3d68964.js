@@ -51521,6 +51521,23 @@ ngFileUpload.service('UploadExif', ['UploadResize', '$q', function (UploadResize
 
 }));
 
+angular.module('askCrm.members', [
+  'askCrm.members.list',
+  'askCrm.members.edit',
+  'askCrm.members.import',
+  'askCrm.members.detail',
+  'askCrm.members.payment',
+  'askCrm'
+  ])
+
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+    .state('members', {
+      url: '/members',
+      abstract: true,
+      template: '<ui-view />'
+    })
+}])
 function LoginCtrl($scope, $state, sweet, authorization) {
   $scope.user;
   
@@ -51566,23 +51583,6 @@ function LoginWithTokenCtrl ($scope, $http, $state, $stateParams, Api, authoriz
   });
 
 }
-angular.module('askCrm.members', [
-  'askCrm.members.list',
-  'askCrm.members.edit',
-  'askCrm.members.import',
-  'askCrm.members.detail',
-  'askCrm.members.payment',
-  'askCrm'
-  ])
-
-.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-  $stateProvider
-    .state('members', {
-      url: '/members',
-      abstract: true,
-      template: '<ui-view />'
-    })
-}])
 angular.module('askCrm.pay', [
     'askCrm.pay.parseToken',
     'askCrm'
@@ -51624,6 +51624,18 @@ angular.module('askCrm.paymentConfirmation', [
 }])
 
 .controller('PaymentConfirmationCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentConfirmationCtrl])
+
+angular.module('askCrm.postnummer', ['ngResource'])
+
+.config(['$resourceProvider', '$httpProvider', function($resourceProvider, $httpProvider) {
+  // Don't strip trailing slashes from calculated URLs
+  $resourceProvider.defaults.stripTrailingSlashes = false;
+  delete $httpProvider.defaults.headers.common["X-Requested-With"]
+}])
+
+.factory('Postnummer', ['$resource', function($resource) {
+  return $resource('http://yourmoneyisnowmymoney.com/api/zipcodes/');
+}]);
 
 angular.module('askCrm.api', [
   'ngResource',
@@ -51733,18 +51745,6 @@ angular.module('askCrm.api', [
     }
   }
 }]);
-angular.module('askCrm.postnummer', ['ngResource'])
-
-.config(['$resourceProvider', '$httpProvider', function($resourceProvider, $httpProvider) {
-  // Don't strip trailing slashes from calculated URLs
-  $resourceProvider.defaults.stripTrailingSlashes = false;
-  delete $httpProvider.defaults.headers.common["X-Requested-With"]
-}])
-
-.factory('Postnummer', ['$resource', function($resource) {
-  return $resource('http://yourmoneyisnowmymoney.com/api/zipcodes/');
-}]);
-
 angular.module('kPrincipal', [
   'ngCookies'
   ])
@@ -51821,77 +51821,6 @@ angular.module('kPrincipal', [
   }
 ])
 
-
-function MembersDetailCtrl ($scope, sweet, Api, member) {
-  $scope.paymentMethods = [];
-  $scope.member = member;
-  $scope.paymentReminders = Api.PaymentReminders().getForMember({member_id:member.id});
-
-  $scope.sendPaymentReminder = function(id) {
-    console.log('$scope.member.id', $scope.member.id);
-    var reminder = Api.PaymentReminders().sendToMember({member_id: $scope.member.id}, function(data) {
-        sweet.show('Skickat!', 'Ett mail har skickats till medlemmen för att påminna om att förlänga medlemskapet.', 'success');
-    });
-  }
-
-  $scope.loadPaymentMethods = function() {
-    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
-      $scope.paymentMethods = data;
-    });
-  };
-
-  $scope.showPayMethod = function(payment) {
-    if(payment.group && $scope.groups.length) {
-      var selected = $filter('filter')($scope.groups, {id: member.group});
-      return selected.length ? selected[0].text : 'Not set';
-    } else {
-      return member.groupName || 'Not set';
-    }
-  };
-
-  $scope.addPayment = function () {
-    var today = new Date();
-
-    $scope.insertedPayment = {
-      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
-      amount: 0,
-      method: ''
-    }
-
-    $scope.member.payments.push($scope.insertedPayment);
-  }
-
-  $scope.savePayment = function (data) {
-    console.log('data', data);
-    data.member_id = member.id;
-    if (data.id) {
-      data.$update();
-    } else {
-      Api.Payments().save(data);
-    }
-  }
-}
-angular.module('askCrm.members.detail', [
-  'askCrm'
-  ])
-
-.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-
-  $stateProvider
-    .state('members.detail', {
-      url: '/:id',
-      parent: 'members',
-      templateUrl: '/components/members/detail/members.detail.html',
-      controller: 'MembersDetailCtrl',
-      resolve: {
-        member: ['$stateParams', 'Api', function($stateParams, Api) {
-          return Api.Members().get($stateParams).$promise;
-        }]
-      }
-    })
-}])
-
-.controller('MembersDetailCtrl', ['$scope', 'sweet', 'Api', 'member', MembersDetailCtrl])
 
 function MembersEditCtrl($scope, Api, member) {
   $scope.member = {};
@@ -52081,6 +52010,77 @@ angular.module('askCrm.members.import', [
 }])
 
 .controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'Api', MembersImportCtrl])
+function MembersDetailCtrl ($scope, sweet, Api, member) {
+  $scope.paymentMethods = [];
+  $scope.member = member;
+  $scope.paymentReminders = Api.PaymentReminders().getForMember({member_id:member.id});
+
+  $scope.sendPaymentReminder = function(id) {
+    console.log('$scope.member.id', $scope.member.id);
+    var reminder = Api.PaymentReminders().sendToMember({member_id: $scope.member.id}, function(data) {
+        sweet.show('Skickat!', 'Ett mail har skickats till medlemmen för att påminna om att förlänga medlemskapet.', 'success');
+    });
+  }
+
+  $scope.loadPaymentMethods = function() {
+    return $scope.paymentMethods.length ? null : Api.PaymentMethods().query(function(data) {
+      $scope.paymentMethods = data;
+    });
+  };
+
+  $scope.showPayMethod = function(payment) {
+    if(payment.group && $scope.groups.length) {
+      var selected = $filter('filter')($scope.groups, {id: member.group});
+      return selected.length ? selected[0].text : 'Not set';
+    } else {
+      return member.groupName || 'Not set';
+    }
+  };
+
+  $scope.addPayment = function () {
+    var today = new Date();
+
+    $scope.insertedPayment = {
+      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
+      amount: 0,
+      method: ''
+    }
+
+    $scope.member.payments.push($scope.insertedPayment);
+  }
+
+  $scope.savePayment = function (data) {
+    console.log('data', data);
+    data.member_id = member.id;
+    if (data.id) {
+      data.$update();
+    } else {
+      Api.Payments().save(data);
+    }
+  }
+}
+angular.module('askCrm.members.detail', [
+  'askCrm'
+  ])
+
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
+
+  $stateProvider
+    .state('members.detail', {
+      url: '/:id',
+      parent: 'members',
+      templateUrl: '/components/members/detail/members.detail.html',
+      controller: 'MembersDetailCtrl',
+      resolve: {
+        member: ['$stateParams', 'Api', function($stateParams, Api) {
+          return Api.Members().get($stateParams).$promise;
+        }]
+      }
+    })
+}])
+
+.controller('MembersDetailCtrl', ['$scope', 'sweet', 'Api', 'member', MembersDetailCtrl])
+
 function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api, members) {
   $scope.members = members;
   $scope.pagination = {
@@ -52267,15 +52267,15 @@ angular.module('askCrm.pay.parseToken', [
 }])
 
 .controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
+function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
+  var info = Api.Members().getPaymentInfo($stateParams, function() {
+    $scope.iframe = $sce.trustAsHtml(info.next_url);
+  });
+}
 function MembersAddPaymentStepOneCtrl($scope, Api, member) {
   console.log('e');
   $scope.paymentMethods = Api.PaymentMethods().query({
     online_payments: 1
-  });
-}
-function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, Api, member) {
-  var info = Api.Members().getPaymentInfo($stateParams, function() {
-    $scope.iframe = $sce.trustAsHtml(info.next_url);
   });
 }
 angular.module('templates', []);
@@ -52302,10 +52302,12 @@ var askCrm = angular.module('askCrm', [
 
 askCrm.constant('APIURI', appConfig.apiUri)
 
-.config(['$urlRouterProvider', '$locationProvider', function($urlRouterProvider, $locationProvider) {
+.config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider) {
   $urlRouterProvider.otherwise('/login');
 
   $locationProvider.html5Mode(appConfig.html5Mode);
+
+  $cookiesProvider.defaults.path = '/';
 }])
 
 .run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'principal', function ($rootScope, $q, sweet, PermissionStore, principal) {

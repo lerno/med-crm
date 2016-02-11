@@ -22,10 +22,12 @@ var askCrm = angular.module('askCrm', [
 
 askCrm.constant('APIURI', appConfig.apiUri)
 
-.config(['$urlRouterProvider', '$locationProvider', function($urlRouterProvider, $locationProvider) {
+.config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider) {
   $urlRouterProvider.otherwise('/login');
 
   $locationProvider.html5Mode(appConfig.html5Mode);
+
+  $cookiesProvider.defaults.path = '/';
 }])
 
 .run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'principal', function ($rootScope, $q, sweet, PermissionStore, principal) {
