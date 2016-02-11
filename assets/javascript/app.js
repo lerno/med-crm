@@ -78,8 +78,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
     };
 }])
 
-.factory('authorization', ['$rootScope', '$state', '$q', '$http', '$cookies', 'principal', 'APIURI',
-  function($rootScope, $state, $q, $http, $cookies, principal, APIURI) {
+.factory('authorization', ['$rootScope', '$state', '$q', '$http', '$cookies', 'principal', 'Api', 'APIURI',
+  function($rootScope, $state, $q, $http, $cookies, principal, Api, APIURI) {
     return {
       authorize: function() {
         return principal.identity()
@@ -103,11 +103,20 @@ askCrm.constant('APIURI', appConfig.apiUri)
               $state.go('login');
           });
       },
-      setTokenAndUser: function(token, user) {
-        $cookies.put('token', token);
-        $cookies.put('user_id', user.id);
-        principal.authenticate(user);
-        return;
+      loginWithToken: function(token) {
+        var deferred = $q.defer();
+        $http.defaults.headers.common['Authorization'] = 'Bearer: ' + token;
+
+        var user = Api.Users().get({id: 'me'}, function () {
+          $cookies.put('token', token);
+          $cookies.put('user_id', user.id);
+          principal.authenticate(user);
+
+          deferred.resolve(user);
+        }, function (data) {
+          deferred.reject(data);
+        });
+        return deferred.promise;
       },
       login: function(_user) {
           var deferred = $q.defer();
