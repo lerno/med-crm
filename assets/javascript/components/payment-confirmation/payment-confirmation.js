@@ -1,3 +1,4 @@
+// Module for showing payment confirmation after visiting Klarna
 angular.module('askCrm.paymentConfirmation', [
   'askCrm'
   ])

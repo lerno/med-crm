@@ -5,14 +5,13 @@ angular.module('askCrm.members.list', [
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members.list', {
-      url: '/list?sort&personal_number&email&last_name',
+      url: '/list?sort&personal_number&email&last_name&page',
       templateUrl: '/components/members/list/members.list.html',
       controller: 'MembersListCtrl',
       reloadOnSearch: true,
       resolve: {
         members: ['$stateParams', 'Api', function($stateParams, Api) {
-          console.log('$stateParams', $stateParams);
-          return Api.Members().query($stateParams);
+          return Api.Members().query($stateParams).$promise;
         }]
       },
       data: {

@@ -189,7 +189,7 @@ gulp.task('deploy:rev:collect', ['deploy:files'], function() {
 gulp.task('auto-reload', function() {
   var p;
 
-  gulp.watch('gulpfile.js', spawnChildren);
+  gulp.watch(['gulpfile.js', 'gulpconfig.json'], spawnChildren);
   spawnChildren();
 
   function spawnChildren(e) {

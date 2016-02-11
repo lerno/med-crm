@@ -5,8 +5,9 @@ angular.module('templates', []);
 var askCrm = angular.module('askCrm', [
   'permission',
   'ui.router',
+  'ui.bootstrap',
   'templates',
-  'askCrm.pay',
+//  'askCrm.pay',
   'askCrm.members',
   'askCrm.api',
   'askCrm.login',

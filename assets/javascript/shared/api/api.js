@@ -47,6 +47,13 @@ angular.module('askCrm.api', [
     Members: function() {
       return $resource(APIURI + '/members/:id', { id:'@id' }, 
       {
+        query: {
+          transformResponse: function(data, headers) {
+            response = {}
+            response.data = JSON.parse(data);
+            response.headers = headers();
+            return response;          }
+        },
         update: {
           method: 'PUT'
         },

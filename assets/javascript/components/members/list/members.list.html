@@ -22,7 +22,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="member in members" ng-click="goToMember(member.id)">
+    <tr ng-repeat="member in members.data" ng-click="goToMember(member.id)">
       <td ng-bind="member.id" sortable="id" filter="{'id': 'text'}"></td>
       <td ng-bind="member.personal_number" sortable="personal_number"></td>
       <td>{{member.first_name}} {{member.last_name}}</td>
@@ -40,3 +40,10 @@
     </tr>
   </tbody>
 </table>
+<uib-pagination 
+  total-items="pagination.totalItems" 
+  ng-model="pagination.currentPage" 
+  ng-change="pageChanged()" 
+  max-size="pagination.maxSize" 
+  items-per-page="pagination.itemsPerPage">
+</uib-pagination>

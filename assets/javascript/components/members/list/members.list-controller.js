@@ -1,5 +1,12 @@
 function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api, members) {
   $scope.members = members;
+  $scope.pagination = {
+    currentPage: $stateParams.page ? $stateParams.page : 1,
+    maxSize: 5,
+    totalItems: members.headers['x-total-count'],
+    itemsPerPage: members.headers['x-per-page'],
+    numPages: parseInt(members.headers['x-total-count']/members.headers['x-per-page'])
+  };
 
   // Set filter options
   $scope.filterOptions = [
@@ -37,6 +44,10 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api
     } else {
       $scope[_prop] = $stateParams.sort === sortParams[i] ? '-' + sortParams[i] : sortParams[i];
     }
+  }
+
+  $scope.pageChanged = function () {
+    $state.go('members.list', {page: $scope.pagination.currentPage});
   }
 
   $scope.goToMember = function (id) {
