@@ -22,7 +22,7 @@ angular.module('askCrm.api', [
       switch(rejection.status) {
         case 400: // Not auth
           if(!$cookies.get('token')) {
-            $cookies.remove('token');
+//            $cookies.remove('token');
           }
         break;
       }
