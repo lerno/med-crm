@@ -1,10 +1,21 @@
-        <a ui-sref="members.add" class="btn btn-success pull-right">Lägg till användare</a>
 <div class="row">
-  <div class="col-md-5">
+  <div class="col-md-4">
     <div class="panel panel-default">
       <div class="panel-heading">Agera</div>
       <div class="panel-body">
-        <button ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default" ng-click="sendPaymentReminders()">Skicka påminnelse om att förlänga medlemskap</button>
+        <button ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default" ng-click="sendPaymentReminders()">Påminn om att förlänga medlemskap</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">Filtrera</div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label>
+            <input type="checkbox" ng-checked="isFilterEnabled('no_payment_reminder')" ng-click="toggleFilter('no_payment_reminder')" /> Har inte fått påminnelse
+          </label>
+        </div>
       </div>
     </div>
   </div>

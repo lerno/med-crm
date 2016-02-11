@@ -8,12 +8,9 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
     numPages: parseInt(members.headers['x-total-count']/members.headers['x-per-page'])
   };
 
-  // Select all members
-  $scope.selectAll = function () {
-    angular.forEach($scope.members.data, function(value, key) {
-      $scope.members.data[key].selected = $scope.allMembersSelected;
-    });
-  };
+  $scope.$on('$locationChangeSuccess', function(){
+    $scope.members = Api.Members().query($stateParams);
+  });
 
   // Used for disabling action buttons
   $scope.selectedFilter = function (object) {
@@ -39,6 +36,7 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
   var currentFilter = $scope.filterOptions.find(function(_obj){ return typeof $stateParams[_obj.value] !== 'undefined'; });
 
   if (currentFilter) {
+    console.log('currentFilter', currentFilter);
     $scope.filterType = currentFilter;
     $scope.filterQuery = $stateParams[currentFilter.value];
   } else {
@@ -71,6 +69,13 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
     $state.go('members.edit', {id: id});
   }
 
+  // Select all members
+  $scope.selectAll = function () {
+    angular.forEach($scope.members.data, function(value, key) {
+      $scope.members.data[key].selected = $scope.allMembersSelected;
+    });
+  };
+
   // Action functions start
   $scope.sendPaymentReminders = function () {
     var members = [];
@@ -86,22 +91,29 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
   }
   // Action functions end
 
+  $scope.isFilterEnabled = function (filter) {
+    return typeof $location.$$search[filter] !== 'undefined';
+  }
+
+  $scope.toggleFilter = function (filter) {
+    if (!$scope.isFilterEnabled(filter)) {
+      $location.search(filter, 'true');
+    } else {
+      $location.search(filter, null);
+    }
+  }
+
   $scope.search = function () {
     $location.search($scope.filterType.value, $scope.filterQuery);
-    return;
-    var _params = {};
-    _params[$scope.filterType.value] = $scope.filterQuery;
-    $state.go($state.current, _params, {
-      reload: true,
-      notify: true,
-      inherit: false
-    });
   }
 
   $scope.resetLocation = function (resetKey) {
+    console.log('reset', resetKey);
+    $location.search('')
+//    $location.search(resetKey, null);
+    return;
     $state.current.reloadOnSearch = false;
 
-    $location.search(resetKey, null);
     $scope.filterQuery = null;
 
     $timeout(function () {
