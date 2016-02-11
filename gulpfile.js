@@ -147,7 +147,7 @@ gulp.task('deploy:files', ['css', 'clean-dist'], function () {
       gulp.src(config.deploy.files.javascript.src)
         .on('error', reject)
         .pipe(concat('all.js'))
-        .pipe(uglify())
+//        .pipe(uglify())
         .pipe(rev())
         .pipe(gulp.dest(config.deploy.files.javascript.dest))
         .pipe(rev.manifest())
