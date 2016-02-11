@@ -1,4 +1,6 @@
-angular.module('kPrincipal', [])
+angular.module('kPrincipal', [
+  'ngCookies'
+  ])
 
 .factory('principal', ['$q', '$http', '$timeout', '$cookies', 'Api', function($q, $http, $timeout, $cookies, Api) {
     var _identity = undefined,

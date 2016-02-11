@@ -37,7 +37,7 @@ angular.module('askCrm.members.payment', [
 
 .directive('evaluateScript', ['$compile', '$parse', function($compile, $parse){
   return {
-    link: ['scope', 'element', 'attr', function(scope, element, attr){
+    link: function(scope, element, attr){
       var parsed = $parse(attr.ngBindHtml);
       function getStringValue() { return (parsed(scope) || '').toString(); }
 
@@ -49,6 +49,6 @@ angular.module('askCrm.members.payment', [
           f();
         }
       });
-    }]         
+    }
   }
 }]);

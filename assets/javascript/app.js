@@ -127,8 +127,6 @@ askCrm.constant('APIURI', appConfig.apiUri)
           return deferred.promise;
       },
       logout: function() {
-          $cookies.remove('token');
-          $cookies.remove('user_id');
           principal.unsetIdentity();
       }
     };
