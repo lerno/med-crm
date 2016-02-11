@@ -23,4 +23,4 @@ angular.module('askCrm.members.list', [
     })
 }])
 
-.controller('MembersListCtrl', ['$scope', '$state', '$stateParams', '$location', '$timeout', 'Api', 'members', MembersListCtrl])
+.controller('MembersListCtrl', ['$scope', '$state', '$stateParams', '$location', '$timeout', 'sweet', 'Api', 'members', MembersListCtrl])

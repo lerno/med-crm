@@ -1,4 +1,4 @@
-function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api, members) {
+function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, sweet, Api, members) {
   $scope.members = members;
   $scope.pagination = {
     currentPage: $stateParams.page ? $stateParams.page : 1,
@@ -6,6 +6,18 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api
     totalItems: members.headers['x-total-count'],
     itemsPerPage: members.headers['x-per-page'],
     numPages: parseInt(members.headers['x-total-count']/members.headers['x-per-page'])
+  };
+
+  // Select all members
+  $scope.selectAll = function () {
+    angular.forEach($scope.members.data, function(value, key) {
+      $scope.members.data[key].selected = $scope.allMembersSelected;
+    });
+  };
+
+  // Used for disabling action buttons
+  $scope.selectedFilter = function (object) {
+    return object.selected === true;
   };
 
   // Set filter options
@@ -46,6 +58,7 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api
     }
   }
 
+  // Pagination
   $scope.pageChanged = function () {
     $state.go('members.list', {page: $scope.pagination.currentPage});
   }
@@ -57,6 +70,21 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, Api
   $scope.goToMemberEdit = function (id) {
     $state.go('members.edit', {id: id});
   }
+
+  // Action functions start
+  $scope.sendPaymentReminders = function () {
+    var members = [];
+    for (var i=0;i<$scope.members.data.length;i++) {
+      if ($scope.members.data[i].selected == true) {
+        members.push($scope.members.data[i].id);
+      }
+    }
+
+    Api.PaymentReminders().save({members: members}, function(data) {
+      sweet.show('Sådär!', 'Då var påminnelserna postade! Bon apetit!', 'success');
+    });
+  }
+  // Action functions end
 
   $scope.search = function () {
     $location.search($scope.filterType.value, $scope.filterQuery);

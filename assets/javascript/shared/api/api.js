@@ -77,7 +77,7 @@ angular.module('askCrm.api', [
         sendToMember: {
           method: 'POST',
           url: APIURI + '/members/:member_id/payment-reminders'
-        }
+        },
       })
     },
 

@@ -1,38 +1,53 @@
-<a ui-sref="members.add" class="btn btn-success pull-right">Lägg till användare</a>
-<form ng-submit="search()" class="form-inline">
-  <input type="text" class="form-control" placeholder="Sök" ng-model="filterQuery" />
-  <select 
-    ng-model="filterType" ng-options="option.name for option in filterOptions" class="form-control" ng-change="resetLocation('{{filterType.value}}')">
-  </select>
-  <input type="submit" class="form-control btn btn-default" value="Sök" />
-</form>
-
+        <a ui-sref="members.add" class="btn btn-success pull-right">Lägg till användare</a>
+<div class="row">
+  <div class="col-md-5">
+    <div class="panel panel-default">
+      <div class="panel-heading">Agera</div>
+      <div class="panel-body">
+        <button ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default" ng-click="sendPaymentReminders()">Skicka påminnelse om att förlänga medlemskap</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="panel panel-default">
+      <div class="panel-heading">Sök</div>
+      <div class="panel-body">
+        <form ng-submit="search()" class="form-inline">
+          <input type="text" class="form-control" placeholder="Sök" ng-model="filterQuery" />
+          <select 
+            ng-model="filterType" ng-options="option.name for option in filterOptions" class="form-control" ng-change="resetLocation('{{filterType.value}}')">
+          </select>
+          <input type="submit" class="form-control btn btn-default" value="Sök" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <table class="table table-striped">
   <thead>
     <tr>
+      <td>
+        <input type="checkbox" ng-click="selectAll()" ng-model="allMembersSelected" />
+      </td>
       <td><a ui-sref="members.list({sort: sortById})">Id</a></td>
       <td><a ui-sref="members.list({sort: sortByPersonal_number})">Personnummer</a></td>
       <td>Namn</td>
       <td>E-post</td>
-      <td>Telefonnummer</td>
-      <td>Facebook</td>
-      <td>Twitter</td>
-      <td>AIK-Forum</td>
-      <td>Medlem sedan</td>
+      <td>Medlem t.om.</td>
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="member in members.data" ng-click="goToMember(member.id)">
+    <tr ng-repeat="member in members.data">
+      <td>
+        <input type="checkbox" ng-model="member.selected" />
+      </td>
       <td ng-bind="member.id" sortable="id" filter="{'id': 'text'}"></td>
       <td ng-bind="member.personal_number" sortable="personal_number"></td>
       <td>{{member.first_name}} {{member.last_name}}</td>
       <td ng-bind="member.email"></td>
-      <td ng-bind="member.phone"></td>
-      <td ng-bind="member.facebook_id"></td>
-      <td ng-bind="member.twitter_id"></td>
-      <td ng-bind="member.aik_forum_id"></td>
-      <td ng-bind="member.member_since"></td>
+      <td ng-bind="member.member_until"></td>
       <td>
+        <a ng-click="goToMember(member.id)" href="" class="btn btn-default">Visa</a>
         <button type="button" class="btn btn-default" aria-label="Left Align" ng-click="goToMemberEdit(member.id)">
           Redigera
         </button>
