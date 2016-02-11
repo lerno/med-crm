@@ -1,6 +1,7 @@
 function MembersDetailCtrl ($scope, sweet, Api, member) {
   $scope.paymentMethods = [];
   $scope.member = member;
+  $scope.paymentReminders = Api.PaymentReminders().getForMember({member_id:member.id});
 
   $scope.sendPaymentReminder = function(id) {
     console.log('$scope.member.id', $scope.member.id);

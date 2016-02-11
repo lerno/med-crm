@@ -57,10 +57,6 @@ angular.module('askCrm.api', [
         update: {
           method: 'PUT'
         },
-        getPaymentReminder: {
-          method: 'GET',
-          url: APIURI + '/payment-reminder/:token'
-        },
         getPaymentInfo: {
           method: 'GET',
           url: APIURI + '/members/:id/pay/:payment_method_id'
@@ -71,10 +67,16 @@ angular.module('askCrm.api', [
     PaymentReminders: function () {
       return $resource(APIURI + '/payment-reminders', {
         member_id: '@member_id'
-      }, {
+      }, 
+      {
+        getForMember: {
+          method: 'GET',
+          url: APIURI + '/members/:member_id/payment-reminders',
+          isArray: true
+        },
         sendToMember: {
           method: 'POST',
-          url: APIURI + '/members/:member_id/payment-reminder'
+          url: APIURI + '/members/:member_id/payment-reminders'
         }
       })
     },
