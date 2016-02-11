@@ -106,6 +106,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
       setTokenAndUser: function(token, user) {
         $cookies.put('token', token);
         $cookies.put('user_id', user.id);
+        principal.authenticate(user);
         return;
       },
       login: function(_user) {
