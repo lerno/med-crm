@@ -1,4 +1,7 @@
-angular.module('askCrm.login', ['askCrm', 'ngCookies'])
+angular.module('askCrm.login', [
+  'askCrm', 
+  'askCrm.members',
+  'ngCookies'])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -22,4 +25,4 @@ angular.module('askCrm.login', ['askCrm', 'ngCookies'])
 
 .controller('LoginCtrl', ['$scope', '$state', 'sweet', 'authorization', LoginCtrl])
 
-.controller('LoginWithTokenCtrl', ['$scope', '$http', '$stateParams', 'authorization', LoginWithTokenCtrl])
+.controller('LoginWithTokenCtrl', ['$scope', '$http', '$state', '$stateParams', 'Api', 'authorization', LoginWithTokenCtrl])

@@ -140,9 +140,6 @@ gulp.task('deploy:files', ['css', 'clean-dist'], function () {
     new Promise(function(resolve, reject) {
       gulp.src(config.deploy.files.configjs.src)
         .on('error', reject)
-        .pipe(rev())
-        .pipe(gulp.dest(config.deploy.files.configjs.dest))
-        .pipe(rev.manifest())
         .pipe(gulp.dest(config.deploy.files.configjs.dest))
         .on('end', resolve);
     }),
