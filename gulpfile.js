@@ -3,7 +3,6 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     autoprefix = require('gulp-autoprefixer'),
     concat = require('gulp-concat'),
-    batch = require('gulp-batch'),
     browserSync = require('browser-sync').create(),
     templateCache = require('gulp-angular-templatecache'),
     inject = require('gulp-inject'),
@@ -15,43 +14,18 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     collect = require('gulp-rev-collector'),
     del = require('del'),
-    gulpConfig = require('./gulpconfig.json'),
+    config = require('./gulpConfig.json'),
     uglify = require('gulp-uglify'),
-    minifyCss = require('gulp-minify-css');
-
-var bowerDir = './app/bower_components',
-    config = {
-        sassPath: './assets/sass',
-        htmlPath: './assets/html/*/*.html',
-        bowerDir: bowerDir,
-        jsSources: [
-          bowerDir + '/angular/angular.js',
-          bowerDir + '/angular-cookies/angular-cookies.js',
-          bowerDir + '/angular-ui-utils/ui-utils.js',
-          bowerDir + '/angular-ui-router/release/angular-ui-router.js',
-          bowerDir + '/angular-resource/angular-resource.js',
-          bowerDir + '/checklist-model/checklist-model.js',
-          bowerDir + '/angular-xeditable/dist/js/xeditable.js',
-          bowerDir + '/ng-file-upload-shim/ng-file-upload-shim.js',
-          bowerDir + '/ng-file-upload/ng-file-upload.js',
-          bowerDir + '/angular-permission/dist/angular-permission.js',
-          bowerDir + '/sweetalert/dist/sweetalert.min.js',
-          bowerDir + '/angular-sweetalert/dist/ngSweetAlert.js',
-          './assets/javascript/**/*.js',
-          '!./assets/javascript/**/*_test.js',
-        ]
-    }
+    minifyCss = require('gulp-minify-css'),
+    gulpif = require('gulp-if');
 
 gulp.task('sass', function() {
   return gulp
-    .src(config.sassPath + '/**/*.scss')
+    .src(config.sass.src)
     .pipe(sourcemaps.init())
     .pipe(sass({
         style: 'compressed',
-        loadPath: [
-          './sass',
-          config.bowerDir + '/bootstrap-sass/assets/stylesheets',
-        ]
+        loadPath: config.sass.src
       })
       .on("error", notify.onError(function (error) {
         console.log(error);
@@ -62,71 +36,58 @@ gulp.task('sass', function() {
       atImport()
       ]))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('./assets/css'));
+    .pipe(gulp.dest(config.sass.dest));
 });
 
 gulp.task('css', function() {
-  return gulp.src([
-    './assets/css/**/*.css'
-    ])
-    .pipe(gulp.dest('./app/assets/css'))
-    .pipe(browserSync.stream());
+  return gulp.src(config.css.src)
+    .pipe(gulp.dest(config.css.dest));
 });
 
 gulp.task('js', function() {
-  gulp.src('./assets/config.js')
-    .pipe(gulp.dest('./app/assets'));
-
-  return gulp.src(config.jsSources)
-    .pipe(concat('all.js'))
-    .pipe(gulp.dest('./app/assets/javascript'));
-})
+  for (var i=0;i<config.js.length;i++) {
+    gulp.src(config.js[i].src)
+      .pipe(gulpif(config.js[i].concat, concat('all.js')))
+      .pipe(gulp.dest(config.js[i].dest));
+  }
+});
 
 gulp.task('templates', function () {
-  gulp.src([
-    './assets/javascript/**/*.html'
-    ])
+  gulp.src(config.templates.src)
     .pipe(templateCache({
-      root: '/'
+      root: config.templates.root
     }))
-    .pipe(gulp.dest('app'))
+    .pipe(gulp.dest(config.templates.dest))
 });
 
 gulp.task('images', function () {
-  gulp.src([
-    './assets/images/**/*.jpg',
-    './assets/images/**/*.jpeg',
-    './assets/images/**/*.png',
-    ])
-  .pipe(gulp.dest('./app/assets/images'))
+  gulp.src(config.images.src)
+  .pipe(gulp.dest(config.images.dest))
 });
  
 gulp.task('inject-html', function () {
-
   // It's not necessary to read the files (will speed up things), we're only after their paths: 
-  var sources = gulp.src([
-    './app/assets/css/base.css',
-    './app/assets/config.js',
-    './app/assets/javascript/all.js',
-    './app/templates.js',
-    ], {read: false});
+  var sources = gulp.src(config.injectHtml.files, {read: false});
 
-  gulp.src('./assets/html/index.html')
-    .pipe(inject(sources, {
-      ignorePath: 'app'
-    }))
-    .pipe(gulp.dest('./app'));
+  gulp.src(config.injectHtml.src)
+    .pipe(inject(sources, config.injectHtml.config))
+    .pipe(gulp.dest(config.injectHtml.dest));
 });
 
 gulp.task('watch', function () {
-  gulp.watch('./assets/html/index.html', ['inject-html']).on('change', browserSync.reload);
-  gulp.watch([
-      './assets/javascript/**/*.js',
-      '!./assets/javascript/**/*_test.js',
-    ], ['js']).on('change', browserSync.reload);
-  gulp.watch([config.sassPath + '/*.scss'], ['sass']);
-  gulp.watch('./assets/css/**/*.css', ['css']);
-  gulp.watch('./assets/javascript/**/*.html', ['templates']).on('change', browserSync.reload);
+  for (var i=0;i<config.watch.length;i++) {
+    var currentScope = config.watch[i],
+        _cb = function() {
+          if (currentScope.reload == true) {
+            browserSync.reload();
+          } else if (currentScope.stream) {
+            browserSync.stream({
+              match: currentScope.stream
+            })
+          }
+        }
+    gulp.watch(config.watch[i].src, config.watch[i].tasks).on('change', _cb);
+  }
 });
 
 gulp.task('connect', function() {
@@ -149,7 +110,7 @@ gulp.task('connect-dist', function() {
 })
 
 gulp.task('clean-dist', function() {
-      del('./dist/*');
+  del('./dist/*');
 });
 
 gulp.task('deploy:files', ['css', 'clean-dist'], function () {
@@ -157,80 +118,71 @@ gulp.task('deploy:files', ['css', 'clean-dist'], function () {
   return Promise.all([
     new Promise(function(resolve, reject) {
       // Move necessary files do /dist
-      gulp.src(gulpConfig.deploy.files.templates.src)
+      gulp.src(config.deploy.files.templates.src)
         .on('error', reject)
-        .pipe(templateCache(gulpConfig.deploy.files.templates.config))
+        .pipe(templateCache(config.deploy.files.templates.config))
         .pipe(rev())
-        .pipe(gulp.dest(gulpConfig.deploy.files.templates.dest))
+        .pipe(gulp.dest(config.deploy.files.templates.dest))
         .pipe(rev.manifest())
-        .pipe(gulp.dest(gulpConfig.deploy.files.templates.dest))
+        .pipe(gulp.dest(config.deploy.files.templates.dest))
         .on('end', resolve);
     }),
     new Promise(function(resolve, reject) {
-      gulp.src(gulpConfig.deploy.files.css.src)
+      gulp.src(config.deploy.files.css.src)
         .on('error', reject)
         .pipe(minifyCss())
         .pipe(rev())
-        .pipe(gulp.dest(gulpConfig.deploy.files.css.dest))
+        .pipe(gulp.dest(config.deploy.files.css.dest))
         .pipe(rev.manifest())
-        .pipe(gulp.dest(gulpConfig.deploy.files.css.dest))
+        .pipe(gulp.dest(config.deploy.files.css.dest))
         .on('end', resolve);
     }),
     new Promise(function(resolve, reject) {
-      gulp.src(gulpConfig.deploy.files.configjs.src)
+      gulp.src(config.deploy.files.configjs.src)
         .on('error', reject)
         .pipe(rev())
-        .pipe(gulp.dest(gulpConfig.deploy.files.configjs.dest))
+        .pipe(gulp.dest(config.deploy.files.configjs.dest))
         .pipe(rev.manifest())
-        .pipe(gulp.dest(gulpConfig.deploy.files.configjs.dest))
+        .pipe(gulp.dest(config.deploy.files.configjs.dest))
         .on('end', resolve);
     }),
     new Promise(function(resolve, reject) {
-      gulp.src(gulpConfig.deploy.files.javascript.src)
+      gulp.src(config.deploy.files.javascript.src)
         .on('error', reject)
         .pipe(concat('all.js'))
         .pipe(uglify())
         .pipe(rev())
-        .pipe(gulp.dest(gulpConfig.deploy.files.javascript.dest))
+        .pipe(gulp.dest(config.deploy.files.javascript.dest))
         .pipe(rev.manifest())
-        .pipe(gulp.dest(gulpConfig.deploy.files.javascript.dest))
+        .pipe(gulp.dest(config.deploy.files.javascript.dest))
         .on('end', resolve);
     }),
     new Promise(function(resolve, reject) {
-      gulp.src(gulpConfig.deploy.files.images.src)
+      gulp.src(config.deploy.files.images.src)
         .on('error', reject)
         .pipe(rev())
-        .pipe(gulp.dest(gulpConfig.deploy.files.images.dest))
+        .pipe(gulp.dest(config.deploy.files.images.dest))
         .pipe(rev.manifest())
-        .pipe(gulp.dest(gulpConfig.deploy.files.images.dest))
+        .pipe(gulp.dest(config.deploy.files.images.dest))
         .on('end', resolve);
     })
   ]).then(function () {
     // It's not necessary to read the files (will speed up things), we're only after their paths: 
-    var sources = gulp.src(gulpConfig.deploy.files.inject.files, {read: false});
+    var sources = gulp.src(config.deploy.files.inject.files, {read: false});
 
-    return gulp.src(gulpConfig.deploy.files.inject.src)
-      .pipe(inject(sources, gulpConfig.deploy.files.inject.config))
-      .pipe(gulp.dest(gulpConfig.deploy.files.inject.dest));
+    return gulp.src(config.deploy.files.inject.src)
+      .pipe(inject(sources, config.deploy.files.inject.config))
+      .pipe(gulp.dest(config.deploy.files.inject.dest));
   });
 
 });
-/*
-gulp.task('deploy:rev', function() {
-  return gulp.src(gulpConfig.revision.src.assets, { base: gulpConfig.revision.src.base })
-    .pipe(gulp.dest(gulpConfig.revision.dest.assets))
-//    .pipe(rev())
-//    .pipe(gulp.dest(gulpConfig.revision.dest.assets))
-    .pipe(rev.manifest({ path: gulpConfig.revision.dest.manifest.name }))
-    .pipe(gulp.dest(gulpConfig.revision.dest.manifest.path));
-});
-*/
+
 gulp.task('deploy:rev:collect', ['deploy:files'], function() {
   // Need to timeout to wait for inject to be finished 
   setTimeout(function() {
-    gulp.src(gulpConfig.collect.src)
+    gulp.src(config.collect.src)
     .pipe(collect())
-    .pipe(gulp.dest(gulpConfig.collect.dest));
+    .pipe(gulp.dest(config.collect.dest));
   }, 500);
 });
 
@@ -250,6 +202,6 @@ gulp.task('auto-reload', function() {
 });
 
 gulp.task('deploy', ['css', 'deploy:files', 'deploy:rev:collect']);
-gulp.task('run-dist', ['deploy', 'connect-dist']);
+gulp.task('run-dist', ['connect-dist']);
 gulp.task('build', ['images', 'templates', 'js', 'sass', 'css', 'inject-html']);
 gulp.task('default', ['auto-reload']);

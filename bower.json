@@ -10,7 +10,6 @@
     "angular-route": "1.2.x",
     "angular-loader": "1.2.x",
     "angular-mocks": "~1.2.x",
-    "html5-boilerplate": "~4.3.0",
     "checklist-model": "~0.9.0",
     "angular-xeditable": "~0.1.9",
     "ng-file-upload-shim": "~11.2.3",
@@ -19,9 +18,9 @@
     "angular-native-datepicker": "angular-native-picker#^1.0.4",
     "angular-permission": "^2.0.6",
     "angular-sweetalert": "angular-h-sweetalert#^1.4.7",
-    "angular-cookies": "^1.5.0"
+    "angular-cookies": "^1.5.0",
+    "angular-permission": "^2.0.6"
   },
   "devDependencies": {
-    "angular-permission": "^2.0.6"
   }
 }

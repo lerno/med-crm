@@ -1,4 +1,101 @@
 {
+  "sass": {
+    "src": "./assets/sass/**/*.scss",
+    "dest": "./assets/css",
+    "sassLoadPath": [
+      "./sass",
+      "./app/bower_components/bootstrap-sass/assets/stylesheets"
+    ]
+  },
+  "css": {
+    "src": ["./assets/css/**/*.css"],
+    "dest": "./app/assets/css"
+  },
+  "js": 
+    [
+      {
+        "src": "./assets/config.js",
+        "dest": "./app/assets",
+        "concat": false
+      },
+      {
+        "src": [
+          "./app/bower_components/angular/angular.js",
+          "./app/bower_components/angular-cookies/angular-cookies.js",
+          "./app/bower_components/angular-ui-utils/ui-utils.js",
+          "./app/bower_components/angular-ui-router/release/angular-ui-router.js",
+          "./app/bower_components/angular-resource/angular-resource.js",
+          "./app/bower_components/checklist-model/checklist-model.js",
+          "./app/bower_components/angular-xeditable/dist/js/xeditable.js",
+          "./app/bower_components/ng-file-upload-shim/ng-file-upload-shim.js",
+          "./app/bower_components/ng-file-upload/ng-file-upload.js",
+          "./app/bower_components/angular-permission/dist/angular-permission.js",
+          "./app/bower_components/sweetalert/dist/sweetalert.min.js",
+          "./app/bower_components/angular-sweetalert/dist/ngSweetAlert.js",
+          "./assets/javascript/**/*.js",
+          "!./assets/javascript/**/*_test.js"
+          ],
+        "dest": "./app/assets/javascript",
+        "concat": true
+      }
+    ],
+  "templates": {
+    "src": ["./assets/javascript/**/*.html"],
+    "dest": "./app",
+    "root": "/"
+  },
+  "images": {
+    "src": [
+      "./assets/images/**/*.jpg",
+      "./assets/images/**/*.jpeg",
+      "./assets/images/**/*.png"
+      ],
+    "dest": "./app/assets/images"
+  },
+  "injectHtml": {
+    "files": [
+      "./app/assets/css/base.css",
+      "./app/assets/config.js",
+      "./app/assets/javascript/all.js",
+      "./app/templates.js"
+    ],
+    "src": "./assets/html/index.html",
+    "dest": "./app",
+    "config": {
+      "ignorePath": "app"
+    }
+  },
+  "watch": [
+    {
+      "src": "./assets/html/index.html",
+      "tasks": ["inject-html"],
+      "reload": true
+    },
+    {
+      "src": [
+        "./assets/javascript/**/*.js",
+        "!./assets/javascript/**/*_test.js"
+      ],
+      "tasks": ["js"],
+      "reload": true
+    },
+    {
+      "src": "./assets/sass/**/*.scss",
+      "tasks": ["sass"],
+      "reload": false
+    },
+    {
+      "src": "./assets/css/**/*.css",
+      "tasks": ["css"],
+      "reload": false,
+      "stream": "./app/assets/css"
+    },
+    {
+      "src": "./assets/javascript/**/*.html",
+      "tasks": ["templates"],
+      "reload": true
+    }
+  ],
   "deploy": {
     "files": {
       "manifest": {
