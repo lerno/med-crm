@@ -23,7 +23,10 @@ var askCrm = angular.module('askCrm', [
 askCrm.constant('APIURI', appConfig.apiUri)
 
 .config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider) {
-  $urlRouterProvider.otherwise('/login');
+  $urlRouterProvider.otherwise( function($injector) {
+    var $state = $injector.get("$state");
+    $state.go('/login');
+  });
 
   $locationProvider.html5Mode(appConfig.html5Mode);
 
@@ -43,9 +46,12 @@ askCrm.constant('APIURI', appConfig.apiUri)
     }
   })
 
-  principal.identity().then(function(data) {
-    $rootScope.currentUser = data;
+  $rootScope.$on('$stateChangePermissionDenied', function(event, toState, toParams, options) {
+    sweet.show('Oops...', 'Du har inte rättighet till denna sida.', 'error');
   });
+
+  // Check if we're logged in
+  principal.identity();
 
   // Define anonymous permission
   PermissionStore

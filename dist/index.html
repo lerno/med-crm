@@ -32,11 +32,19 @@
     
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav" permission only="'admin'">
-            <li ui-sref-active="active"><a ui-sref="members.list">Lista medlemmar<span class="sr-only">(current)</span></a></li>
-            <li ui-sref-active="active"><a ui-sref="members.add">Lägg till medlem</a></li>
-            <li ui-sref-active="active"><a ui-sref="members.import">Importera medlemmar</a></li>
-            <li ui-sref-active="active" class="pull-right" ng-show="currentUser"><a ui-sref="logout">Logga ut</a></li>
+          <ul class="nav navbar-nav" ng-if="currentUser">
+            <li ui-sref-active="active" permission only="'admin'">
+              <a ui-sref="members.list">Lista medlemmar<span class="sr-only">(current)</span></a>
+            </li>
+            <li ui-sref-active="active" permission only="'admin'">
+              <a ui-sref="members.add">Lägg till medlem</a>
+            </li>
+            <li ui-sref-active="active" permission only="'admin'">
+              <a ui-sref="members.import">Importera medlemmar</a>
+            </li>
+            <li ui-sref-active="active" class="pull-right" ng-show="currentUser">
+              <a ui-sref="logout">Logga ut</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -50,8 +58,8 @@
 
   <!-- inject:js -->
   <script src="/assets/config.js"></script>
-  <script src="/assets/javascript/all-879fe00789.js"></script>
-  <script src="/assets/templates-60b65ab7ea.js"></script>
+  <script src="/assets/javascript/all-2a82276f92.js"></script>
+  <script src="/assets/templates-b59287c428.js"></script>
   <!-- endinject -->
   </body>
 </html>

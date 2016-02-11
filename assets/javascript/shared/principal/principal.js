@@ -2,7 +2,7 @@ angular.module('kPrincipal', [
   'ngCookies'
   ])
 
-.factory('principal', ['$q', '$http', '$timeout', '$cookies', 'Api', function($q, $http, $timeout, $cookies, Api) {
+.factory('principal', ['$rootScope', '$q', '$http', '$timeout', '$cookies', 'Api', function($rootScope, $q, $http, $timeout, $cookies, Api) {
     var _identity = undefined,
       _authenticated = false;
 
@@ -35,6 +35,7 @@ angular.module('kPrincipal', [
       },
       authenticate: function(identity) {
         _identity = identity;
+        $rootScope.currentUser = identity;
         _authenticated = identity != null;
       },
       unsetIdentity: function() {
@@ -42,6 +43,7 @@ angular.module('kPrincipal', [
         _authenticated = false;
         $cookies.remove('token');
         $cookies.remove('user_id');
+        $rootScope.currentUser = undefined;
       },
       identity: function(force) {
         var deferred = $q.defer();
