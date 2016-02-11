@@ -2,9 +2,8 @@ angular.module('askCrm.members.payment', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
 
-//  $urlRouterProvider.otherwise("/add-person");
   $stateProvider
     .state('members.addPayment', {
       url: '/:id/pay',
@@ -30,15 +29,15 @@ angular.module('askCrm.members.payment', [
       templateUrl: '/components/members/payment/step2/members.payment.step2.html',
       controller: 'MembersAddPaymentStepTwoCtrl'
     })
-})
+}])
 
 .controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
 .controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
 .controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
 
-.directive('evaluateScript', function($compile, $parse){
+.directive('evaluateScript', ['$compile', '$parse', function($compile, $parse){
   return {
-    link: function(scope, element, attr){
+    link: ['scope', 'element', 'attr', function(scope, element, attr){
       var parsed = $parse(attr.ngBindHtml);
       function getStringValue() { return (parsed(scope) || '').toString(); }
 
@@ -50,6 +49,6 @@ angular.module('askCrm.members.payment', [
           f();
         }
       });
-    }         
+    }]         
   }
-});
+}]);

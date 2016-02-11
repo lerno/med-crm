@@ -18,16 +18,16 @@ angular.module('askCrm.api', [
       return response || $q.when(response);
     },
     responseError: function (rejection) {
-        $rootScope.$broadcast('httpRejection', rejection);
-        switch(rejection.status) {
-            case 400: // Not auth
-                if(!$cookies.get('token')) {
-                  $cookies.remove('token');
-                }
-            break;
-        }
+      $rootScope.$broadcast('httpRejection', rejection);
+      switch(rejection.status) {
+        case 400: // Not auth
+          if(!$cookies.get('token')) {
+            $cookies.remove('token');
+          }
+        break;
+      }
 
-        return $q.reject(rejection);
+      return $q.reject(rejection);
     }
   };
 }])

@@ -2,9 +2,8 @@ angular.module('askCrm.members.detail', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
 
-//  $urlRouterProvider.otherwise("/add-person");
   $stateProvider
     .state('members.detail', {
       url: '/:id',
@@ -17,6 +16,6 @@ angular.module('askCrm.members.detail', [
         }]
       }
     })
-})
+}])
 
 .controller('MembersDetailCtrl', ['$scope', 'sweet', 'Api', 'member', MembersDetailCtrl])

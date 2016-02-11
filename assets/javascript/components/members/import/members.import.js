@@ -2,7 +2,7 @@ angular.module('askCrm.members.import', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members.import', {
       url: '/import',
@@ -14,7 +14,6 @@ angular.module('askCrm.members.import', [
         }
       }
     })
-})
-
+}])
 
 .controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'Api', MembersImportCtrl])

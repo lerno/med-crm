@@ -2,7 +2,7 @@ angular.module('askCrm.members.list', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members.list', {
       url: '/list?sort&personal_number&email&last_name',
@@ -22,7 +22,6 @@ angular.module('askCrm.members.list', [
       }
 
     })
-})
-
+}])
 
 .controller('MembersListCtrl', ['$scope', '$state', '$stateParams', '$location', '$timeout', 'Api', 'members', MembersListCtrl])

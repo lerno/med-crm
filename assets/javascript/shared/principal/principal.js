@@ -1,7 +1,6 @@
 angular.module('kPrincipal', [])
 
-.factory('principal', ['$q', '$http', '$timeout', '$cookies', 'Api',
-  function($q, $http, $timeout, $cookies, Api) {
+.factory('principal', ['$q', '$http', '$timeout', '$cookies', 'Api', function($q, $http, $timeout, $cookies, Api) {
     var _identity = undefined,
       _authenticated = false;
 
@@ -13,8 +12,6 @@ angular.module('kPrincipal', [])
         return _authenticated;
       },
       isInRole: function(role) {
-        console.log('isInRole', role);
-        console.log('_identity.roles', _identity);
         if (!_authenticated || !_identity.roles) return false;
 
         for (var i=0;i<_identity.roles.length;i++) {
@@ -24,7 +21,6 @@ angular.module('kPrincipal', [])
         }
 
         return false;
-        return _identity.roles.indexOf(role) != -1;
       },
       isInAnyRole: function(roles) {
         if (!_authenticated || !_identity.roles) return false;
@@ -42,6 +38,8 @@ angular.module('kPrincipal', [])
       unsetIdentity: function() {
         _identity = undefined;
         _authenticated = false;
+        $cookies.remove('token');
+        $cookies.remove('user_id');
       },
       identity: function(force) {
         var deferred = $q.defer();
@@ -58,29 +56,15 @@ angular.module('kPrincipal', [])
         if (!$cookies.get('user_id')) {
           deferred.reject(undefined);
         } else {
+          var self = this;
           Api.Users().get({id: $cookies.get('user_id')}, function(data) {
-              _identity = data;
-              _authenticated = true;
+              self.authenticate(data);
               deferred.resolve(_identity);
           }, function(data){
-              _identity = undefined;
-              _authenticated = false;
+              self.unsetIdentity();
               deferred.reject(data);
           });
         }
-
-        // otherwise, retrieve the identity data from the server, update the identity object, and then resolve.
-        //                   $http.get('/svc/account/identity', { ignoreErrors: true })
-        //                        .success(function(data) {
-        //                            _identity = data;
-        //                            _authenticated = true;
-        //                            deferred.resolve(_identity);
-        //                        })
-        //                        .error(function () {
-        //                            _identity = null;
-        //                            _authenticated = false;
-        //                            deferred.resolve(_identity);
-        //                        });
 
         return deferred.promise;
       }

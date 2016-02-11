@@ -2,9 +2,8 @@ angular.module('askCrm.members.edit', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
 
-//  $urlRouterProvider.otherwise("/add-person");
   $stateProvider
     .state('members.add', {
       url: '/add',
@@ -29,7 +28,7 @@ angular.module('askCrm.members.edit', [
         }]
       }
     })
-})
+}])
 
 .controller('MembersEditCtrl', ['$scope', 'Api', 'member', MembersEditCtrl])
 

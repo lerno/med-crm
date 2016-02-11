@@ -15,7 +15,9 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     collect = require('gulp-rev-collector'),
     del = require('del'),
-    gulpConfig = require('./gulpconfig.json');
+    gulpConfig = require('./gulpconfig.json'),
+    uglify = require('gulp-uglify'),
+    minifyCss = require('gulp-minify-css');
 
 var bowerDir = './app/bower_components',
     config = {
@@ -146,13 +148,13 @@ gulp.task('connect-dist', function() {
   });
 })
 
-gulp.task('deploy:files', ['css'], function () {
+gulp.task('clean-dist', function() {
+      del('./dist/*');
+});
+
+gulp.task('deploy:files', ['css', 'clean-dist'], function () {
 
   return Promise.all([
-    new Promise(function(resolve, reject) {
-      del('./dist/*');
-      resolve();
-    }),
     new Promise(function(resolve, reject) {
       // Move necessary files do /dist
       gulp.src(gulpConfig.deploy.files.templates.src)
@@ -167,6 +169,7 @@ gulp.task('deploy:files', ['css'], function () {
     new Promise(function(resolve, reject) {
       gulp.src(gulpConfig.deploy.files.css.src)
         .on('error', reject)
+        .pipe(minifyCss())
         .pipe(rev())
         .pipe(gulp.dest(gulpConfig.deploy.files.css.dest))
         .pipe(rev.manifest())
@@ -186,6 +189,7 @@ gulp.task('deploy:files', ['css'], function () {
       gulp.src(gulpConfig.deploy.files.javascript.src)
         .on('error', reject)
         .pipe(concat('all.js'))
+        .pipe(uglify())
         .pipe(rev())
         .pipe(gulp.dest(gulpConfig.deploy.files.javascript.dest))
         .pipe(rev.manifest())

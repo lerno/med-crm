@@ -5,6 +5,7 @@ angular.module('templates', []);
 var askCrm = angular.module('askCrm', [
   'permission',
   'ui.router',
+  'templates',
   'askCrm.pay',
   'askCrm.members',
   'askCrm.api',
@@ -18,19 +19,6 @@ var askCrm = angular.module('askCrm', [
   'hSweetAlert'
 ])
 
-// The templates module is only used in /dist
-var lazyModules = ['templates'];
-angular.forEach(lazyModules, function(dependency) {
-  var m;
-  try {
-    m = angular.module(dependency);
-  } catch (e) {}
-
-  if (m) {
-    askCrm.requires.push(dependency);
-  }
-});
-
 askCrm.constant('APIURI', appConfig.apiUri)
 
 .config(['$urlRouterProvider', '$locationProvider', function($urlRouterProvider, $locationProvider) {
@@ -42,11 +30,17 @@ askCrm.constant('APIURI', appConfig.apiUri)
 .run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'principal', function ($rootScope, $q, sweet, PermissionStore, principal) {
 
   $rootScope.$on('httpRejection', function(event, args) {
-    sweet.show('Oops...', 'Någonting gick fel: ' + args.data.message, 'error');
+    switch (args.status) {
+      case 401:
+        sweet.show('Oops...', 'Du har inte rättighet till denna sida.', 'error');
+      break;
+      default:
+        sweet.show('Oops...', 'Någonting gick fel: ' + args.data.message, 'error');
+      break;
+    }
   })
-  console.log('hej');
+
   principal.identity().then(function(data) {
-    console.log('hej2');
     $rootScope.currentUser = data;
   });
 

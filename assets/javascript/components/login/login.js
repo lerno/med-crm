@@ -1,16 +1,15 @@
 angular.module('askCrm.login', ['askCrm', 'ngCookies'])
 
-.config(function($stateProvider, $urlRouterProvider) {
-//  $urlRouterProvider.otherwise('/persons');
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('login', {
       url: '/login',
       templateUrl: '/components/login/login.html',
-      controller: LoginCtrl
+      controller: 'LoginCtrl'
     })
     .state('loginWithToken', {
       url: '/login-with-token/:token',
-      controller: LoginWithTokenCtrl
+      controller: 'LoginWithTokenCtrl'
     })
     .state('logout', {
       url: '/logout',
@@ -19,7 +18,7 @@ angular.module('askCrm.login', ['askCrm', 'ngCookies'])
         $state.go('login');
       }]
     })
-})
+}])
 
 .controller('LoginCtrl', ['$scope', '$state', 'sweet', 'authorization', LoginCtrl])
 

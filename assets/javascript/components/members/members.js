@@ -7,11 +7,11 @@ angular.module('askCrm.members', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members', {
       url: '/members',
       abstract: true,
       template: '<ui-view />'
     })
-})
+}])

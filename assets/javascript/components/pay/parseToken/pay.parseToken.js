@@ -2,8 +2,7 @@ angular.module('askCrm.pay.parseToken', [
   'askCrm'
   ])
 
-.config(function($stateProvider, $urlRouterProvider) {
-
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('pay.parseToken', {
       url: '/parse-token?token',
@@ -11,6 +10,6 @@ angular.module('askCrm.pay.parseToken', [
       templateUrl: '/components/pay/parseToken/pay.parseToken.html',
       controller: 'PayParseTokenCtrl'
     })
-})
+}])
 
 .controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
