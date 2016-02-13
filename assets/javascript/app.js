@@ -25,7 +25,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
 .config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider) {
   $urlRouterProvider.otherwise( function($injector) {
     var $state = $injector.get("$state");
-    $state.go('/login');
+    $state.go('login');
   });
 
   $locationProvider.html5Mode(appConfig.html5Mode);

@@ -1,12 +1,23 @@
 function MembersDetailCtrl ($scope, sweet, Api, member) {
   $scope.paymentMethods = [];
   $scope.member = member;
-  $scope.paymentReminders = Api.PaymentReminders().getForMember({member_id:member.id});
+  $scope.countries = Api.Countries().query();
+  $scope.genders = Api.Genders().query();
+
+  $scope.savePerson = function () {
+    $scope.member.$update();
+  }
+
+  $scope.getPaymentReminders = function () {
+    $scope.paymentReminders = Api.PaymentReminders().getForMember({member_id:member.id});
+  }
+
+  $scope.getPaymentReminders();
 
   $scope.sendPaymentReminder = function(id) {
-    console.log('$scope.member.id', $scope.member.id);
     var reminder = Api.PaymentReminders().sendToMember({member_id: $scope.member.id}, function(data) {
         sweet.show('Skickat!', 'Ett mail har skickats till medlemmen för att påminna om att förlänga medlemskapet.', 'success');
+        $scope.getPaymentReminders();
     });
   }
 

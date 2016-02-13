@@ -1,26 +1,80 @@
-<a class="btn btn-default pull-right" ui-sref="members.edit({id: member.id})">Redigera</a>
 <h1>{{member.first_name}} {{member.last_name}}</h1>
 <div class="row">
   <div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">Personuppgifter</div>
-      <div class="panel-body">
-        <p>{{member.first_name}} {{member.last_name}}<br />
-        {{member.street_address}}<br />
-        {{member.postcode}} {{member.city}}<br />
-        {{member.country.name}}
-        </p>
-        <p>Kön: {{member.gender.name}}<br />
-        Personnummer: {{member.personal_number}}</p>
-        <p><strong>Kontaktuppgifter</strong>:<br />
-        <a href="mailto:{{member.email}}" ng-show="member.email">{{member.email}}</a><br />
-        <span ng-show="member.phone">{{member.phone}}</span><br />
-        <a href="http://www.facebook.com/{{member.facebook}}" ng-show="member.facebook">{{member.facebook}}</a>
-        <a href="http://www.twitter.com/{{member.twitter}}" ng-show="member.twitter">{{member.twitter}}</a>
-
-        </p>
+    <form editable-form name="personForm" onaftersave="savePerson()">
+      <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+          Personuppgifter
+          <button type="button" class="btn btn-default btn-xs pull-right" ng-click="personForm.$show()" ng-show="!personForm.$visible">Redigera</button>
+          <span ng-show="personForm.$visible" class="pull-right">
+            <button type="submit" class="btn btn-primary btn-xs" ng-disabled="personForm.$waiting">
+              Spara
+            </button>
+            <button type="button" class="btn btn-default btn-xs" ng-disabled="personForm.$waiting" ng-click="personForm.$cancel()">
+              Ångra
+            </button>
+          </span>
+        </div>
+        <div class="panel-body">
+          <div>
+            <span e-placeholder="Förnamn" editable-text="member.first_name" e-name="first_name">{{ member.first_name || 'empty' }}</span>
+            <span e-placeholder="Efternamn" editable-text="member.last_name" e-name="last_name">{{ member.last_name || 'empty' }}</span>
+          </div>
+          <div>
+            <span e-placeholder="Adress" editable-text="member.street_address" e-name="street_address">{{ member.street_address || 'empty' }}</span>
+          </div>
+          <div>
+            <span e-placeholder="Postnummer" editable-text="member.postcode" e-name="postcode">{{ member.postcode || 'empty' }}</span>
+            <span e-placeholder="Ort" editable-text="member.city" e-name="city">{{ member.city || 'empty' }}</span>
+          </div>
+          <div>
+            <span editable-select="member.country_id" e-ng-options="c.id as c.name for c in countries">
+              {{ (countries | filter:{id: member.country_id})[0].name || 'Not set' }}
+            </span>
+          </div>
+          <p></p>
+          <div>
+            <span editable-select="member.gender_id" e-ng-options="g.id as g.name for g in genders">
+              {{ (genders | filter:{id: member.gender_id})[0].name || 'Not set' }}
+            </span>
+          </div>
+          <div>
+            <span e-placeholder="Personnummer" editable-text="member.personal_number" e-name="personal_number">{{ member.personal_number || 'empty' }}</span>
+          </div>
+          <p></p>
+          <p><strong>Kontaktuppgifter</strong>:
+          <div>
+            <span e-placeholder="E-post" editable-text="member.email" e-name="email">
+              <a href="mailto:{{member.email}}">
+                {{ member.email || 'empty' }}
+              </a>
+            </span>
+          </div>
+          <div>
+            <span e-placeholder="Telefonnummer" editable-text="member.phone" e-name="phone">
+              <a href="tel:{{member.phone}}">
+                {{ member.phone || 'empty' }}
+              </a>
+            </span>
+          </div>
+          <div>
+            <span e-placeholder="Facebook" editable-text="member.facebook_id" e-name="facebook_id">
+              <a href="http://www.facebook.com/{{member.facebook_id}}" target="_blank" ng-show="member.facebook_id">
+                Facebook
+              </a>
+            </span>
+          </div>
+          <div>
+            <span e-placeholder="Twitter" editable-text="member.twitter_id" e-name="twitter_id">
+              <a href="http://www.twitter.com/{{member.twitter_id}}" target="_blank" ng-show="member.twitter_id">
+                Twitter
+              </a>
+            </span>
+          </div>
+          </p>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
   <div class="col-md-6">
     <div class="panel panel-default">
@@ -94,10 +148,17 @@
               <th>Metod</th>
               <th>Skickad</th>
             </tr>
-            <tr ng-repeat="reminder in paymentReminders">
+            <tr ng-repeat="reminder in paymentReminders" ng-class="{'text-danger': !reminder.sent, 'text-success': reminder.sent}">
               <td>{{reminder.id}}</td>
               <td>{{reminder.method}}</td>
-              <td>{{reminder.created_at}}</td>
+              <td>
+                <span ng-show="reminder.sent">
+                  {{reminder.created_at}}
+                </span>
+                <span ng-hide="reminder.sent">
+                  Meddelandet kunde inte skickas
+                </span>
+              </td>
             </tr>
           </table>
           <p>
