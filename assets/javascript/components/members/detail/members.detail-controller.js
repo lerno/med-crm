@@ -1,11 +1,25 @@
-function MembersDetailCtrl ($scope, sweet, Api, member) {
+function MembersDetailCtrl ($scope, $filter, sweet, Api, member) {
   $scope.paymentMethods = [];
   $scope.member = member;
   $scope.countries = Api.Countries().query();
   $scope.genders = Api.Genders().query();
+  $scope.roles = Api.Roles().query(function () {
+    var _roles = [];
+    angular.forEach($scope.member.user.roles, function(element, index) {
+       var found = $filter('getById')($scope.roles, element.id);
+       if (found) {
+        _roles.push(found);
+       }
+    });
+    $scope.member.user.roles = _roles;
+  });
 
   $scope.savePerson = function () {
     $scope.member.$update();
+  }
+
+  $scope.saveUser = function () {
+    var user = Api.Users().update($scope.member.user);
   }
 
   $scope.getPaymentReminders = function () {
@@ -26,6 +40,12 @@ function MembersDetailCtrl ($scope, sweet, Api, member) {
       $scope.paymentMethods = data;
     });
   };
+
+  $scope.createUserForMember = function() {
+    var user = Api.Users().save({member_id: $scope.member.id}, function () {
+      $scope.member.user = user;
+    })
+  }
 
   $scope.showPayMethod = function(payment) {
     if(payment.group && $scope.groups.length) {

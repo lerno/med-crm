@@ -168,4 +168,39 @@
       </div>
     </div>
   </div>
+  <div class="col-md-6">
+    <form editable-form name="userForm" onaftersave="saveUser()">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Användarkonto
+          <button type="button" class="btn btn-default btn-xs pull-right" ng-click="userForm.$show()" ng-show="!userForm.$visible">Redigera</button>
+          <span ng-show="userForm.$visible" class="pull-right">
+            <button type="submit" class="btn btn-primary btn-xs" ng-disabled="userForm.$waiting">
+              Spara
+            </button>
+            <button type="button" class="btn btn-default btn-xs" ng-disabled="userForm.$waiting" ng-click="userForm.$cancel()">
+              Ångra
+            </button>
+          </span>
+        </div>
+        <div class="panel-body">
+          <div ng-show="!member.user">
+            <p>
+              {{member.first_name}} {{member.last_name}} har inget användarkonto registrerat.
+            </p>
+            <p><a href="" class="btn btn-success" ng-click="createUserForMember()">Skapa ett konto för {{member.first_name}} {{member.last_name}}</a></p>
+          </div>
+          <div ng-hide="!member.user">
+            <div>ID: {{member.user.id}}</div>
+            <div>Konto skapat: {{member.user.created_at}}</div>
+            <div>Roller: 
+              <span editable-checklist="member.user.roles" e-ng-options="r as r.display_name for r in roles">
+                <span ng-repeat="role in member.user.roles">{{role.display_name}}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

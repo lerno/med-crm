@@ -41,7 +41,12 @@ angular.module('askCrm.api', [
   return {
 
     Users: function() {
-      return $resource(APIURI + '/users/:id', {id:'@id'});
+      return $resource(APIURI + '/users/:id', {id:'@id'}, 
+      {
+        update: {
+          method: 'PUT'
+        }
+      });
     },
 
     Members: function() {
@@ -52,7 +57,8 @@ angular.module('askCrm.api', [
             response = {}
             response.data = JSON.parse(data);
             response.headers = headers();
-            return response;          }
+            return response;
+          }
         },
         update: {
           method: 'PUT'
