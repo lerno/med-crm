@@ -49,6 +49,21 @@ angular.module('askCrm.api', [
       });
     },
 
+    Passwords: function() {
+      return $resource(APIURI + '/password', {}, 
+      {
+        email: {
+          method: 'POST',
+          url: APIURI + '/password/email'
+        },
+        reset: {
+          method: 'POST',
+          url: APIURI + '/password/reset',
+          isArray: true
+        }
+      })
+    },
+
     Members: function() {
       return $resource(APIURI + '/members/:id', { id:'@id' }, 
       {

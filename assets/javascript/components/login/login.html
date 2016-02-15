@@ -5,11 +5,12 @@
       <div class="panel-body">
         <form ng-submit="login()">
           <div class="form-group">
-            <input type="text" ng-model="user.email" placeholder="Användarnamn" />
+            <input type="text" ng-model="user.email" placeholder="E-post" />
           </div>
           <div class="form-group">
             <input type="password" ng-model="user.password" placeholder="Lösenord" />
           </div>
+          <div><a href="" ui-sref="passwordReminder.email">Glömt lösenordet?</a></div>
           <button type="submit" class="btn btn-default">Logga in</button>
         </form>
       </div>

@@ -1,7 +1,9 @@
 angular.module('askCrm.login', [
   'askCrm', 
+  'askCrm.passwordReminder',
   'askCrm.members',
-  'ngCookies'])
+  'ngCookies'
+  ])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -23,6 +25,6 @@ angular.module('askCrm.login', [
     })
 }])
 
-.controller('LoginCtrl', ['$scope', '$state', 'sweet', 'authorization', LoginCtrl])
+.controller('LoginCtrl', ['$scope', '$state', '$stateParams', 'sweet', 'authorization', LoginCtrl])
 
 .controller('LoginWithTokenCtrl', ['$scope', '$http', '$state', '$stateParams', 'Api', 'authorization', LoginWithTokenCtrl])
