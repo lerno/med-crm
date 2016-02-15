@@ -1,72 +1,82 @@
+<h1>Lista medlemmar</h1>
 <div class="row">
-  <div class="col-md-4">
-    <div class="panel panel-default">
-      <div class="panel-heading">Agera</div>
-      <div class="panel-body">
-        <button ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default" ng-click="sendPaymentReminders()">Påminn om att förlänga medlemskap</button>
+  <div class="col-md-4 col-md-push-8">
+    <div class="col-md-12 col-xs-5">
+      <div class="panel panel-default">
+        <div class="panel-heading">Sök</div>
+        <div class="panel-body">
+          <form ng-submit="search()" class="form-inline">
+            <input type="text" class="form-control" placeholder="Sök" ng-model="filterQuery" />
+            <select 
+              ng-model="filterType" ng-options="option.name for option in filterOptions" class="form-control" ng-change="resetLocation('{{filterType.value}}')">
+            </select>
+            <input type="submit" class="form-control btn btn-default" value="Sök" />
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-3">
-    <div class="panel panel-default">
-      <div class="panel-heading">Filtrera</div>
-      <div class="panel-body">
-        <div class="form-group">
-          <label>
-            <input type="checkbox" ng-checked="isFilterEnabled('no_payment_reminder')" ng-click="toggleFilter('no_payment_reminder')" /> Har inte fått påminnelse
-          </label>
+    <div class="col-md-12 col-xs-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">Filtrera</div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label>
+              <input type="checkbox" ng-checked="isFilterEnabled('no_payment_reminder')" ng-click="toggleFilter('no_payment_reminder')" /> Har inte fått påminnelse
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" ng-checked="isFilterEnabled('duplicates')" ng-click="toggleFilter('duplicates')" /> Dubletter (e-post/telefonnummer)
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12 col-xs-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">Agera</div>
+        <div class="panel-body">
+          <button ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default" ng-click="sendPaymentReminders()">Påminn om att förlänga medlemskap</button>
         </div>
       </div>
     </div>
   </div>
-  <div class="col-md-5">
-    <div class="panel panel-default">
-      <div class="panel-heading">Sök</div>
-      <div class="panel-body">
-        <form ng-submit="search()" class="form-inline">
-          <input type="text" class="form-control" placeholder="Sök" ng-model="filterQuery" />
-          <select 
-            ng-model="filterType" ng-options="option.name for option in filterOptions" class="form-control" ng-change="resetLocation('{{filterType.value}}')">
-          </select>
-          <input type="submit" class="form-control btn btn-default" value="Sök" />
-        </form>
-      </div>
-    </div>
+  <div class="col-md-8 col-md-pull-4">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <td>
+            <input type="checkbox" ng-click="selectAll()" ng-model="allMembersSelected" />
+          </td>
+          <td><a ui-sref="members.list({sort: sortById})">Id</a></td>
+          <td><a ui-sref="members.list({sort: sortByPersonal_number})">Personnummer</a></td>
+          <td>Namn</td>
+          <td>E-post</td>
+          <td>Medlem t.om.</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="member in members.data">
+          <td>
+            <input type="checkbox" ng-model="member.selected" />
+          </td>
+          <td ng-bind="member.id" sortable="id" filter="{'id': 'text'}"></td>
+          <td ng-bind="member.personal_number" sortable="personal_number"></td>
+          <td>{{member.first_name}} {{member.last_name}}</td>
+          <td ng-bind="member.email"></td>
+          <td ng-bind="member.member_until"></td>
+          <td>
+            <a ng-click="goToMember(member.id)" href="" class="btn btn-default">Visa</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <uib-pagination 
+      total-items="pagination.totalItems" 
+      ng-model="pagination.currentPage" 
+      ng-change="pageChanged()" 
+      max-size="pagination.maxSize" 
+      items-per-page="pagination.itemsPerPage">
+    </uib-pagination>
   </div>
 </div>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <td>
-        <input type="checkbox" ng-click="selectAll()" ng-model="allMembersSelected" />
-      </td>
-      <td><a ui-sref="members.list({sort: sortById})">Id</a></td>
-      <td><a ui-sref="members.list({sort: sortByPersonal_number})">Personnummer</a></td>
-      <td>Namn</td>
-      <td>E-post</td>
-      <td>Medlem t.om.</td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="member in members.data">
-      <td>
-        <input type="checkbox" ng-model="member.selected" />
-      </td>
-      <td ng-bind="member.id" sortable="id" filter="{'id': 'text'}"></td>
-      <td ng-bind="member.personal_number" sortable="personal_number"></td>
-      <td>{{member.first_name}} {{member.last_name}}</td>
-      <td ng-bind="member.email"></td>
-      <td ng-bind="member.member_until"></td>
-      <td>
-        <a ng-click="goToMember(member.id)" href="" class="btn btn-default">Visa</a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<uib-pagination 
-  total-items="pagination.totalItems" 
-  ng-model="pagination.currentPage" 
-  ng-change="pageChanged()" 
-  max-size="pagination.maxSize" 
-  items-per-page="pagination.itemsPerPage">
-</uib-pagination>

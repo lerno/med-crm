@@ -5,7 +5,7 @@ angular.module('askCrm.members.list', [
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members.list', {
-      url: '/list?sort&personal_number&email&last_name&no_payment_reminder&page',
+      url: '/list?sort&personal_number&email&last_name&no_payment_reminder&duplicates&page',
       templateUrl: '/components/members/list/members.list.html',
       controller: 'MembersListCtrl',
       reloadOnSearch: false,
