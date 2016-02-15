@@ -45,7 +45,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
   }
 })
 
-.run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'principal', function ($rootScope, $q, sweet, PermissionStore, principal) {
+.run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'editableOptions', 'editableThemes', 'principal', function ($rootScope, $q, sweet, PermissionStore, editableOptions, editableThemes, principal) {
 
   $rootScope.$on('httpRejection', function(event, args) {
     switch (args.status) {
@@ -90,6 +90,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
       });
       return deferred.promise;
     });
+
+    editableOptions.theme = 'bs3';
 }])
 
 .filter('currentdate',['$filter',  function($filter) {

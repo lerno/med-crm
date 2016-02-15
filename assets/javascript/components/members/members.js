@@ -1,6 +1,6 @@
 angular.module('askCrm.members', [
   'askCrm.members.list',
-  'askCrm.members.edit',
+  'askCrm.members.add',
   'askCrm.members.import',
   'askCrm.members.detail',
   'askCrm.members.payment',
