@@ -10,7 +10,7 @@ function MembersImportCtrl($scope, $timeout, $state, Upload, sweet, APIURI) {
 
     if (!file.$error) {
       Upload.upload({
-        url: 'http://ask-crm-api.app/api/v1/members/import',
+        url: APIURI + '/members/import',
         data: {
           file: file  
         }
