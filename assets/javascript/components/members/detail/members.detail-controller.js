@@ -5,6 +5,9 @@ function MembersDetailCtrl ($scope, $filter, sweet, Api, member) {
   $scope.genders = Api.Genders().query();
   $scope.roles = Api.Roles().query(function () {
     var _roles = [];
+    if (!$scope.member.user) {
+      return;
+    }
     angular.forEach($scope.member.user.roles, function(element, index) {
        var found = $filter('getById')($scope.roles, element.id);
        if (found) {

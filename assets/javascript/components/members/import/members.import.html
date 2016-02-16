@@ -1,3 +1,4 @@
+<h1>Importera medlemmar</h1>
 <div 
   ngf-drop 
   ngf-select 
@@ -10,9 +11,4 @@
   style="width: 400px; height: 200px; border: 10px dashed black; text-align: center; padding-top: 40px;">
     Släpp Excel-filen här för att ladda upp
 </div>
-<p>{{log}}</p>
-    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
-    Files:
-    <ul>
-        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
-    </ul>
+<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>

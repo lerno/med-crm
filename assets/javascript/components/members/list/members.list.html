@@ -1,7 +1,7 @@
 <h1>Lista medlemmar</h1>
 <div class="row">
   <div class="col-md-4 col-md-push-8">
-    <div class="col-md-12 col-xs-5">
+    <div class="col-md-12 col-sm-8">
       <div class="panel panel-default">
         <div class="panel-heading">Sök</div>
         <div class="panel-body">
@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-12 col-xs-3">
+    <div class="col-md-12 col-sm-4">
       <div class="panel panel-default">
         <div class="panel-heading">Filtrera</div>
         <div class="panel-body">
@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-12 col-xs-4">
+    <div class="col-md-12 col-sm-12">
       <div class="panel panel-default">
         <div class="panel-heading">Agera</div>
         <div class="panel-body">
@@ -48,8 +48,8 @@
           <td>
             <input type="checkbox" ng-click="selectAll()" ng-model="allMembersSelected" />
           </td>
-          <td><a ui-sref="members.list({sort: sortById})">Id</a></td>
-          <td><a ui-sref="members.list({sort: sortByPersonal_number})">Personnummer</a></td>
+          <td><a ui-sref="members.list({sort: sortByMember_number})">Medlemsnummer</a></td>
+          <td ng-show="1 == 0"><a ui-sref="members.list({sort: sortByPersonal_number})">Personnummer</a></td>
           <td>Namn</td>
           <td>E-post</td>
           <td>Medlem t.om.</td>
@@ -60,8 +60,8 @@
           <td>
             <input type="checkbox" ng-model="member.selected" />
           </td>
-          <td ng-bind="member.id" sortable="id" filter="{'id': 'text'}"></td>
-          <td ng-bind="member.personal_number" sortable="personal_number"></td>
+          <td ng-bind="member.member_number" sortable="member_number" filter="{'member_number': 'text'}"></td>
+          <td ng-show="1 == 0" ng-bind="member.personal_number" sortable="personal_number"></td>
           <td>{{member.first_name}} {{member.last_name}}</td>
           <td ng-bind="member.email"></td>
           <td ng-bind="member.member_until"></td>

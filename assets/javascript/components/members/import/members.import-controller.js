@@ -1,6 +1,5 @@
-function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
+function MembersImportCtrl($scope, $timeout, $state, Upload, sweet, APIURI) {
   $scope.$watch('file', function () {
-    console.log('file change');
     $scope.upload($scope.file);
   });
 
@@ -17,10 +16,7 @@ function MembersImportCtrl($scope, $timeout, $state, Upload, Api) {
         }
       }).then(function (resp) {
           $timeout(function() {
-              $scope.log = 'file: ' +
-              resp.config.data.file.name +
-              ', Response: ' + JSON.stringify(resp.data) +
-              '\n' + $scope.log;
+            sweet.show('Importerat!', 'Medlemmarna har importerats i databasen.', 'success');
           });
       }, null, function (evt) {
           var progressPercentage = parseInt(100.0 *
