@@ -92,6 +92,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
     });
 
     editableOptions.theme = 'bs3';
+    editableThemes.bs3.inputClass = 'input-sm';
 }])
 
 .filter('currentdate',['$filter',  function($filter) {

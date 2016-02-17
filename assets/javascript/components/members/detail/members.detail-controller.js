@@ -63,7 +63,7 @@ function MembersDetailCtrl ($scope, $filter, sweet, Api, member) {
     var today = new Date();
 
     $scope.insertedPayment = {
-      payment_date: today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate(),
+      payment_date: today,
       amount: 0,
       method: ''
     }

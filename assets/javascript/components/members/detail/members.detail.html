@@ -95,7 +95,8 @@
               <th>Id</th>
               <th>Datum</th>
               <th>Summa</th>
-              <th>Betalningsmetod</th>
+              <th>Metod</th>
+              <th>Externt id</th>
               <th>Registrerad av</th>
               <th>Ändra</th>
             </tr>
@@ -117,20 +118,25 @@
                   </span>
               </td>
               <td>
+                <span editable-text="payment.external_id" e-name="external_id" e-form="rowform" e-required>
+                  {{payment.external_id}}
+                </span>
+              </td>
+              <td>
                 <a ui-sref="members.detail({id: payment.created_by.id})">{{payment.created_by.first_name}} {{payment.created_by.last_name}}</a>
               </td>
               <td>
                 <form editable-form name="rowform" onbeforesave="savePayment($data, member.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="insertedPayment == payment">
-                  <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
-                    save
+                  <button type="submit" ng-disabled="rowform.$waiting" class="btn-sm btn-primary">
+                    Spara
                   </button>
-                  <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
-                    cancel
+                  <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn-sm btn-default">
+                    Avbryt
                   </button>
                 </form>
                 <div class="buttons" ng-show="!rowform.$visible">
-                  <button class="btn btn-primary" ng-click="rowform.$show()">edit</button>
-                  <button class="btn btn-danger" ng-click="removeMember($index)">del</button>
+                  <button class="btn-sm btn-primary" ng-click="rowform.$show()">Redigera</button>
+                  <button class="btn-sm btn-danger" ng-click="removeMember($index)">Ta bort</button>
                 </div> 
               </td>
             </tr>
