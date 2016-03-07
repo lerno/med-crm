@@ -77,7 +77,7 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
   };
 
   // Action functions start
-  $scope.sendPaymentReminders = function () {
+  $scope.sendPaymentReminders = function (method) {
     var members = [];
     for (var i=0;i<$scope.members.data.length;i++) {
       if ($scope.members.data[i].selected == true) {
@@ -85,10 +85,22 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
       }
     }
 
-    Api.PaymentReminders().save({members: members}, function(data) {
+    Api.PaymentReminders().save({members: members, method:method}, function(data) {
       sweet.show('Sådär!', 'Då var påminnelserna postade! Bon apetit!', 'success');
     });
   }
+
+  $scope.sendPaymentRemindersInfo = function () {
+    sweet.show({
+      title: 'Skicka masspåminnelser!', 
+      text: '<strong>Skicka med automatiskt valt medium:</strong> Påminnelser skickas i första hand genom sms (om medlemmen angivit telefonnummer) och i andra hand genom e-post. <br />' +
+      '<strong>Skicka med sms:</strong> Påminnelser skickas enbart till markerade medlemmar med angivet mobilnummer. <br />' +
+      '<strong>Skicka med e-post:</strong> Påminnelser skickas enbart till markerade medlemmar med angiven e-postadress', 
+      html: true,
+      type: 'info'
+    });
+  }
+
   // Action functions end
 
   $scope.isFilterEnabled = function (filter) {

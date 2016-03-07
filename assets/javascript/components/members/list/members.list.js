@@ -1,5 +1,6 @@
 angular.module('askCrm.members.list', [
-  'askCrm'
+  'askCrm',
+  'ui.bootstrap.dropdown'
   ])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {

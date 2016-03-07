@@ -64,6 +64,11 @@ gulp.task('images', function () {
   gulp.src(config.images.src)
   .pipe(gulp.dest(config.images.dest))
 });
+
+gulp.task('fonts', function () {
+  gulp.src(config.fonts.src)
+  .pipe(gulp.dest(config.fonts.dest))
+});
  
 gulp.task('inject-html', function () {
   // It's not necessary to read the files (will speed up things), we're only after their paths: 
@@ -162,6 +167,15 @@ gulp.task('deploy:files', ['css', 'clean-dist'], function () {
         .pipe(rev.manifest())
         .pipe(gulp.dest(config.deploy.files.images.dest))
         .on('end', resolve);
+    }),
+    new Promise(function(resolve, reject) {
+      gulp.src(config.deploy.files.fonts.src)
+        .on('error', reject)
+        .pipe(rev())
+        .pipe(gulp.dest(config.deploy.files.fonts.dest))
+        .pipe(rev.manifest())
+        .pipe(gulp.dest(config.deploy.files.fonts.dest))
+        .on('end', resolve);
     })
   ]).then(function () {
     // It's not necessary to read the files (will speed up things), we're only after their paths: 
@@ -200,5 +214,5 @@ gulp.task('auto-reload', function() {
 
 gulp.task('deploy', ['css', 'deploy:files', 'deploy:rev:collect']);
 gulp.task('run-dist', ['connect-dist']);
-gulp.task('build', ['images', 'templates', 'js', 'sass', 'css', 'inject-html']);
+gulp.task('build', ['images', 'templates', 'js', 'sass', 'css', 'fonts', 'inject-html']);
 gulp.task('default', ['auto-reload']);

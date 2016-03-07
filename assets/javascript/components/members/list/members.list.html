@@ -36,7 +36,18 @@
       <div class="panel panel-default">
         <div class="panel-heading">Agera</div>
         <div class="panel-body">
-          <button ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default" ng-click="sendPaymentReminders()">Påminn om att förlänga medlemskap</button>
+          <div class="btn-group" uib-dropdown is-open="status.isopen">
+            <button uib-dropdown-toggle ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Påminn om att förlänga medlemskap <span class="caret"></span></button>
+            <ul uib-dropdown-menu class="dropdown-menu">
+              <li><a href="" ng-click="sendPaymentReminders()">Skicka med automatiskt valt medium</a></li>
+              <li><a href="" ng-click="sendPaymentReminders('sms')">Skicka med sms</a></li>
+              <li><a href="" ng-click="sendPaymentReminders('email')">Skicka med e-post</a></li>
+            </ul>
+          </div>
+
+          <button type="button" class="btn btn-default" aria-label="Information om påminnelse" ng-click="sendPaymentRemindersInfo()">
+            <span class="glyphicon glyphicon-info-sign"></span>
+          </button>
         </div>
       </div>
     </div>
