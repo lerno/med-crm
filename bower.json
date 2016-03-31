@@ -18,7 +18,8 @@
     "angular-native-datepicker": "angular-native-picker#^1.0.4",
     "angular-permission": "^2.0.6",
     "angular-sweetalert": "angular-h-sweetalert#^1.4.7",
-    "angular-cookies": "^1.5.0"
+    "angular-cookies": "^1.5.0",
+    "angular-material": "^1.0.6"
   },
   "devDependencies": {
     "angular-bootstrap": "^1.1.2",

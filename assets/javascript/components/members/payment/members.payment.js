@@ -1,4 +1,5 @@
 angular.module('askCrm.members.payment', [
+  'askCrm.members.detail.person',
   'askCrm'
   ])
 
@@ -20,8 +21,16 @@ angular.module('askCrm.members.payment', [
     .state('members.addPayment.step1', {
       url: '',
       parent: 'members.addPayment',
-      templateUrl: '/components/members/payment/step1/members.payment.step1.html',
-      controller: 'MembersAddPaymentStepOneCtrl'
+      views: {
+        '': {
+          templateUrl: '/components/members/payment/step1/members.payment.step1.html',
+          controller: 'MembersAddPaymentStepOneCtrl',
+        },
+        'personDetail@members.addPayment.step1': {
+          templateUrl: '/components/members/detail/person/members.detail.person.html',
+          controller: 'MembersDetailPersonCtrl'
+        }
+      }
     })
     .state('members.addPayment.step2', {
       url: '/:payment_method_id',

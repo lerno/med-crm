@@ -1,8 +1,8 @@
 function MembersDetailCtrl ($scope, $filter, sweet, Api, member) {
   $scope.paymentMethods = [];
   $scope.member = member;
-  $scope.countries = Api.Countries().query();
-  $scope.genders = Api.Genders().query();
+//  $scope.countries = Api.Countries().query();
+//  $scope.genders = Api.Genders().query();
   $scope.roles = Api.Roles().query(function () {
     var _roles = [];
     if (!$scope.member.user) {
@@ -16,11 +16,11 @@ function MembersDetailCtrl ($scope, $filter, sweet, Api, member) {
     });
     $scope.member.user.roles = _roles;
   });
-
+/*
   $scope.savePerson = function () {
     $scope.member.$update();
   }
-
+*/
   $scope.saveUser = function () {
     var user = Api.Users().update($scope.member.user);
   }

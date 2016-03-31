@@ -1,4 +1,5 @@
 angular.module('askCrm.members.detail', [
+  'askCrm.members.detail.person',
   'askCrm'
   ])
 
@@ -8,12 +9,20 @@ angular.module('askCrm.members.detail', [
     .state('members.detail', {
       url: '/:id',
       parent: 'members',
-      templateUrl: '/components/members/detail/members.detail.html',
-      controller: 'MembersDetailCtrl',
       resolve: {
         member: ['$stateParams', 'Api', function($stateParams, Api) {
           return Api.Members().get($stateParams).$promise;
         }]
+      },
+      views: {
+        '': {
+          templateUrl: '/components/members/detail/members.detail.html',
+          controller: 'MembersDetailCtrl'
+        },
+        'personDetail@members.detail': {
+          templateUrl: '/components/members/detail/person/members.detail.person.html',
+          controller: 'MembersDetailPersonCtrl'
+        }
       }
     })
 }])
