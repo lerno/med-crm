@@ -13,6 +13,9 @@ angular.module('askCrm.members.payment', [
       templateUrl: '/components/members/payment/members.payment.html',
       controller: 'MembersAddPaymentCtrl',
       resolve: {
+        price: ['$stateParams', 'Api', function($stateParams, Api) {
+          return Api.Members().getMembershipPrice($stateParams).$promise;
+        }],
         member: ['$stateParams', 'Api', function($stateParams, Api) {
           return Api.Members().get($stateParams).$promise;
         }]
@@ -40,7 +43,7 @@ angular.module('askCrm.members.payment', [
     })
 }])
 
-.controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', MembersAddPaymentCtrl])
+.controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', 'price', MembersAddPaymentCtrl])
 .controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
 .controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
 

@@ -18,33 +18,32 @@
         <span e-placeholder="Efternamn" editable-text="member.last_name" e-name="last_name">{{ member.last_name || 'empty' }}</span>
       </div>
       <div>
-        <span e-placeholder="Adress" editable-text="member.street_address" e-name="street_address">{{ member.street_address || 'empty' }}</span>
+        <span e-placeholder="Adress" editable-text="member.street_address" e-name="street_address">{{ member.street_address || 'Adress ej angiven' }}</span>
       </div>
       <div>
         <span e-placeholder="Postnummer" editable-text="member.postcode" e-name="postcode">{{ member.postcode || 'empty' }}</span>
-        <span e-placeholder="Ort" editable-text="member.city" e-name="city">{{ member.city || 'empty' }}</span>
+        <span e-placeholder="Ort" editable-text="member.city" e-name="city">{{ member.city || 'Stad ej angiven' }}</span>
       </div>
       <div>
         <span editable-select="member.country_id" e-ng-options="c.id as c.name for c in countries">
-          {{ (countries | filter:{id: member.country_id})[0].name || 'Not set' }}
+          {{ (countries | filter:{id: member.country_id})[0].name || 'Land ej angivet' }}
         </span>
       </div>
       <p></p>
       <div>
         <span editable-select="member.gender_id" e-ng-options="g.id as g.name for g in genders">
-          {{ (genders | filter:{id: member.gender_id})[0].name || 'Not set' }}
+          {{ (genders | filter:{id: member.gender_id})[0].name || 'Kön ej angivet' }}
         </span>
       </div>
       <div>
-      Födelsedatum {{user.dob}}
-  <a href="#" editable-bsdate="user.dob" e-datepicker-popup="dd-MMMM-yyyy">
-    {{ (user.dob | date:"dd/MM/yyyy") || 'empty' }}
-  </a>
-      <span e-placeholder="Födelsedatum" editable-bsdate="member.birthdate" e-name="birthdate" e-datepicker-popup="dd-MMMM-yyyy" is-open="dt.open" ng-click="dt.open = true">{{ member.birthdate || 'empty' }}</span>
+        <span e-placeholder="Födelsedatum" editable-date="member.birthdate" e-name="birthdate">{{ (member.birthdate | date: 'yyyy-MM-dd') || 'empty' }}</span>
+        <span ng-show="personForm.$visible && !personForm.birthdate.$valid" class="small">Ange i formatet YYYY-mm-dd</span>
       </div>
+<!--
       <div>
         <span e-placeholder="Personnummer" editable-text="member.personal_number" e-name="personal_number">{{ member.personal_number || 'empty' }}</span>
       </div>
+      -->
       <p></p>
       <p><strong>Kontaktuppgifter</strong>:
       <div>
@@ -55,7 +54,7 @@
         </span>
       </div>
       <div>
-        <span e-placeholder="Telefonnummer" editable-text="member.mobile" e-name="mobile">
+        <span e-placeholder="Telefonnummer" editable-text="member.mobile" e-name="mobile" onbeforesave="validateMobile()">
           <a href="tel:{{member.mobile}}">
             {{ member.mobile || 'empty' }}
           </a>

@@ -81,6 +81,10 @@ angular.module('askCrm.api', [
         getPaymentInfo: {
           method: 'GET',
           url: APIURI + '/members/:id/pay/:payment_method_id'
+        },
+        getMembershipPrice: {
+          method: 'GET',
+          url: APIURI + '/members/:id/membership-price'
         }
       });
     },
