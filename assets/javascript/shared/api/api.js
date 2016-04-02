@@ -91,7 +91,8 @@ angular.module('askCrm.api', [
 
     PaymentReminders: function () {
       return $resource(APIURI + '/payment-reminders', {
-        member_id: '@member_id'
+        member_id: '@member_id',
+        force: '@force'
       }, 
       {
         getForMember: {

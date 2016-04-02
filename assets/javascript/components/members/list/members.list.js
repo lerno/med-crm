@@ -1,14 +1,13 @@
 angular.module('askCrm.members.list', [
   'askCrm',
-  'ui.bootstrap.dropdown'
+  'ui.bootstrap.dropdown',
+  'askCrm.members.paymentReminderButton'
   ])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members.list', {
       url: '/list?sort&personal_number&email&last_name&no_payment_reminder&duplicates&page',
-      templateUrl: '/components/members/list/members.list.html',
-      controller: 'MembersListCtrl',
       reloadOnSearch: false,
       resolve: {
         members: ['$stateParams', 'Api', function($stateParams, Api) {
@@ -18,6 +17,16 @@ angular.module('askCrm.members.list', [
       data: {
         permissions: {
           only: ['admin']
+        }
+      },
+      views: {
+        '': {
+          templateUrl: '/components/members/list/members.list.html',
+          controller: 'MembersListCtrl',
+        },
+        'paymentReminderButton@members.list': {
+          templateUrl: '/components/members/payment-reminder-button/members.payment-reminder-button.html',
+          controller: 'MembersPaymentReminderButtonCtrl',
         }
       }
 

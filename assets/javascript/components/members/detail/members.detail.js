@@ -1,6 +1,7 @@
 angular.module('askCrm.members.detail', [
   'askCrm.members.detail.person',
-  'askCrm'
+  'askCrm',
+  'askCrm.members.paymentReminderButton'
   ])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
@@ -22,6 +23,10 @@ angular.module('askCrm.members.detail', [
         'personDetail@members.detail': {
           templateUrl: '/components/members/detail/person/members.detail.person.html',
           controller: 'MembersDetailPersonCtrl'
+        },
+        'paymentReminderButton@members.detail': {
+          templateUrl: '/components/members/payment-reminder-button/members.payment-reminder-button.html',
+          controller: 'MembersPaymentReminderButtonCtrl'
         }
       }
     })
