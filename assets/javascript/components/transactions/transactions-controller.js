@@ -1,4 +1,4 @@
-function TransactionsCtrl($scope, $stateParams, payments) {
+function TransactionsCtrl($scope, $state, $stateParams, payments) {
   $scope.payments = payments;
 
   $scope.pagination = {

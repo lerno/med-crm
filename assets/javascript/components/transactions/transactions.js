@@ -10,11 +10,11 @@ angular.module('askCrm.payments', [
       templateUrl: '/components/transactions/transactions.html',
       controller: 'TransactionsCtrl',
       resolve: {
-        transactions: ['Api', function (Api) {
-          return Api.Payments().query().$promise;
+        transactions: ['$stateParams', 'Api', function ($stateParams, Api) {
+          return Api.Payments().query($stateParams).$promise;
         }]
       }
     });
 }])
 
-.controller('TransactionsCtrl', ['$scope', '$stateParams', 'transactions', TransactionsCtrl])
+.controller('TransactionsCtrl', ['$scope', '$state', '$stateParams', 'transactions', TransactionsCtrl])
