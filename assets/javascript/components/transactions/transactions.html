@@ -14,7 +14,7 @@
       <tbody>
         <tr ng-repeat="payment in payments.data">
           <td ng-bind="payment.id"></td>
-          <td ng-bind="payment.amount"></td>
+          <td>{{payment.amount/100}}</td>
           <td ng-bind="payment.payment_method.name"></td>
           <td><a ui-sref="members.detail({id: payment.member_id})">{{payment.member.first_name}} {{payment.member.last_name}}</a></td>
         </tr>
