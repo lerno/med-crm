@@ -12,6 +12,7 @@ var askCrm = angular.module('askCrm', [
   'askCrm.api',
   'askCrm.login',
   'askCrm.dashboard',
+  'askCrm.payments',
   'askCrm.paymentConfirmation',
   'kPrincipal',
   'xeditable',

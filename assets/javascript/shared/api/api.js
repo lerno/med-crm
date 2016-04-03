@@ -128,7 +128,16 @@ angular.module('askCrm.api', [
     },
 
     Payments: function() {
-      return $resource(APIURI + '/payments/:id', {id: '@id'});
+      return $resource(APIURI + '/payments/:id', {id: '@id'}, {
+        query: {
+          transformResponse: function(data, headers) {
+            response = {}
+            response.data = JSON.parse(data);
+            response.headers = headers();
+            return response;
+          }
+        }
+      })
     }
   }
 }]);

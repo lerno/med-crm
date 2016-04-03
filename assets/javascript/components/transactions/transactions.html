@@ -1,0 +1,31 @@
+<h1>Inbetalningar</h1>
+
+<div class="row">
+  <div class="col-md-8">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <td>Betalnings-id</td>
+          <td>Summa</td>
+          <td>Betalningsmetod</td>
+          <td>Medlem</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="payment in payments.data">
+          <td ng-bind="payment.id"></td>
+          <td ng-bind="payment.amount"></td>
+          <td ng-bind="payment.payment_method.name"></td>
+          <td><a ui-sref="members.detail({id: payment.member_id})">{{payment.member.first_name}} {{payment.member.last_name}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <uib-pagination 
+      total-items="pagination.totalItems" 
+      ng-model="pagination.currentPage" 
+      ng-change="pageChanged()" 
+      max-size="pagination.maxSize" 
+      items-per-page="pagination.itemsPerPage">
+    </uib-pagination>
+  </div>
+</div>
