@@ -6,7 +6,7 @@ angular.module('askCrm.payments', [
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('transactions', {
-      url: '/transactions',
+      url: '/transactions?page',
       templateUrl: '/components/transactions/transactions.html',
       controller: 'TransactionsCtrl',
       resolve: {
