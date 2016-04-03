@@ -36,7 +36,7 @@ angular.module('askCrm.members.payment', [
       }
     })
     .state('members.addPayment.step2', {
-      url: '/:payment_method_id',
+      url: '/:payment_method_id?force',
       parent: 'members.addPayment',
       templateUrl: '/components/members/payment/step2/members.payment.step2.html',
       controller: 'MembersAddPaymentStepTwoCtrl'

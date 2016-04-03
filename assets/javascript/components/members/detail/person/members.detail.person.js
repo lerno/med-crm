@@ -4,4 +4,4 @@ angular.module('askCrm.members.detail.person', [
   'askCrm'
   ])
 
-.controller('MembersDetailPersonCtrl', ['$scope', '$filter', '$timeout', 'sweet', 'Api', 'member', MembersDetailPersonCtrl])
+.controller('MembersDetailPersonCtrl', ['$scope', '$filter', '$timeout', '$state', 'sweet', 'Api', 'member', MembersDetailPersonCtrl])
