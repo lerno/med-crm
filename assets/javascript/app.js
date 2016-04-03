@@ -7,10 +7,11 @@ var askCrm = angular.module('askCrm', [
   'ui.router',
   'ui.bootstrap',
   'templates',
-//  'askCrm.pay',
+  'askCrm.start',
   'askCrm.members',
   'askCrm.api',
   'askCrm.login',
+  'askCrm.dashboard',
   'askCrm.paymentConfirmation',
   'kPrincipal',
   'xeditable',
@@ -25,7 +26,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
 .config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider) {
   $urlRouterProvider.otherwise( function($injector) {
     var $state = $injector.get("$state");
-    $state.go('login');
+
+    $state.go('start');
   });
 
   $locationProvider.html5Mode(appConfig.html5Mode);

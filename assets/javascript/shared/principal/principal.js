@@ -4,7 +4,8 @@ angular.module('kPrincipal', [
 
 .factory('principal', ['$rootScope', '$q', '$http', '$timeout', '$cookies', 'Api', function($rootScope, $q, $http, $timeout, $cookies, Api) {
     var _identity = undefined,
-      _authenticated = false;
+      _authenticated = false,
+      _isLookingForIdentity = false;
 
     return {
       isIdentityResolved: function() {
@@ -37,6 +38,7 @@ angular.module('kPrincipal', [
         _identity = identity;
         $rootScope.currentUser = identity;
         _authenticated = identity != null;
+        $rootScope.$broadcast('userAuthenticationChanged');
       },
       unsetIdentity: function() {
         _identity = undefined;
@@ -44,6 +46,7 @@ angular.module('kPrincipal', [
         $cookies.remove('token');
         $cookies.remove('user_id');
         $rootScope.currentUser = undefined;
+        $rootScope.$broadcast('userAuthenticationChanged');
       },
       identity: function(force) {
         var deferred = $q.defer();
@@ -60,13 +63,25 @@ angular.module('kPrincipal', [
         if (!$cookies.get('user_id')) {
           deferred.reject(undefined);
         } else {
+          if (_isLookingForIdentity === true && force !== true) {
+            var _d = $q.defer();
+            $rootScope.$on('userAuthenticationChanged', function() {
+              return _d.resolve(_identity);
+            })
+            return _d.promise;
+          }
+
           var self = this;
+          _isLookingForIdentity = true;
+
           Api.Users().get({id: $cookies.get('user_id')}, function(data) {
               self.authenticate(data);
               deferred.resolve(_identity);
+              _isLookingForIdentity = false;
           }, function(data){
               self.unsetIdentity();
               deferred.reject(data);
+              _isLookingForIdentity = false;
           });
         }
 
