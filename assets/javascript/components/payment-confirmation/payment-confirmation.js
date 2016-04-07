@@ -12,4 +12,4 @@ angular.module('askCrm.paymentConfirmation', [
     })
 }])
 
-.controller('PaymentConfirmationCtrl', ['$scope', '$state', '$stateParams', 'Api', PaymentConfirmationCtrl])
+.controller('PaymentConfirmationCtrl', ['$scope', '$state', '$stateParams', '$sce', 'Api', PaymentConfirmationCtrl])

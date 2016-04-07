@@ -14,6 +14,7 @@ angular.module('askCrm.members.payment', [
       controller: 'MembersAddPaymentCtrl',
       resolve: {
         price: ['$stateParams', 'Api', function($stateParams, Api) {
+          console.log($stateParams);
           return Api.Members().getMembershipPrice($stateParams).$promise;
         }],
         member: ['$stateParams', 'Api', function($stateParams, Api) {
@@ -39,13 +40,18 @@ angular.module('askCrm.members.payment', [
       url: '/:payment_method_id?force',
       parent: 'members.addPayment',
       templateUrl: '/components/members/payment/step2/members.payment.step2.html',
-      controller: 'MembersAddPaymentStepTwoCtrl'
+      controller: 'MembersAddPaymentStepTwoCtrl',
+      resolve: {
+        paymentInfo: ['$stateParams', 'Api', function ($stateParams, Api) {
+          return Api.Members().getPaymentInfo($stateParams).$promise;
+        }]
+      }
     })
 }])
 
 .controller('MembersAddPaymentCtrl', ['$scope', 'Api', 'member', 'price', MembersAddPaymentCtrl])
 .controller('MembersAddPaymentStepOneCtrl', ['$scope', 'Api', 'member', MembersAddPaymentStepOneCtrl])
-.controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', 'Api', 'member', MembersAddPaymentStepTwoCtrl])
+.controller('MembersAddPaymentStepTwoCtrl', ['$scope', '$sce', '$stateParams', '$http', 'member', 'paymentInfo', MembersAddPaymentStepTwoCtrl])
 
 .directive('evaluateScript', ['$compile', '$parse', function($compile, $parse){
   return {

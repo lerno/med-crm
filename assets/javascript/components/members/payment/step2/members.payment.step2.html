@@ -1,1 +1,25 @@
-<div ng-bind-html="iframe" evaluate-script></div>
+<div class="row">
+  <div class="col-md-6">
+    <div ng-show="iframe" style="width: auto;" ng-bind-html="iframe" evaluate-script></div>
+    <div ng-hide="iframe">
+    <h2>Handla med {{paymentMethod.name}}</h2>
+    <p>För att handla med {{paymentMethod.name}} behöver du fylla i ditt personnummer nedan</p>
+    <div class="form-group">
+      <input type="form-control" type="text" ng-model="personalNumber" placeholder="Personnummer" />
+    </div>
+    <!--
+    <h2>Du köper ett medlemskap till</h2>
+    <span ng-show="member.first_name || member.last_name">{{member.first_name}} {{member.last_name}}</span>
+    <span ng-show="member.street_address"><br />{{member.street_address}}</span>
+    <span ng-show="member.postcode || member.city"><br />{{member.postcode}} {{member.city}}</span>
+    -->
+    </div>
+  </div>
+  <div class="col-md-6">
+    <h2>Du håller på att köpa:</h2>
+    <ul>
+      <li ng-repeat="item in items">{{item.name}}, {{item.unit_price / 100}} SEK</li>
+    </ul>
+    <a class="btn btn-lg btn-success" ng-show="next_url" href="" ng-click="confirmPayment()">Slutför betalning</a>
+  </div>
+</div>
