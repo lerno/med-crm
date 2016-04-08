@@ -136,6 +136,10 @@ angular.module('askCrm.api', [
             response.headers = headers();
             return response;
           }
+        },
+        getNextUrl: {
+          method: 'GET',
+          url: APIURI + '/payments/get-next-url/:externalId'
         }
       })
     }

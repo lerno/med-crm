@@ -7,16 +7,16 @@
       <p>Boateng - Tre poäng!</p>
     </div>
   </div>
-  <div class="col-md-3">
+  <div ng-class="{'col-md-3': payment, 'col-md-6': !payment}">
     <div ng-show="iframe" style="width: auto;" ng-bind-html="iframe" evaluate-script></div>
   </div>
-  <div class="col-md-3">
-    <div class="panel panel-default" ng-show="payment">
+  <div class="col-md-3" ng-show="payment">
+    <div class="panel panel-default">
       <div class="panel-heading">Kvitto:</div>
       <div class="panel-body">
         <div class="list-group">
           <div class="list-group-item">Beställnings-id: {{payment.id}}</div>
-          <div class="list-group-item">Summa: {{payment.amount}} SEK</div>
+          <div class="list-group-item">Summa: {{payment.amount/100}} SEK</div>
           <div class="list-group-item">Datum: {{payment.payment_date}}</div>
           <div class="list-group-item">Betalningsmethod: {{payment.payment_method.name}}</div>
         </div>
