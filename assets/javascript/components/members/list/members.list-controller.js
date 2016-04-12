@@ -1,15 +1,20 @@
 function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, sweet, Api, members) {
   $scope.members = members;
-  $scope.pagination = {
-    currentPage: $stateParams.page ? $stateParams.page : 1,
-    maxSize: 5,
-    totalItems: members.headers['x-total-count'],
-    itemsPerPage: members.headers['x-per-page'],
-    numPages: parseInt(members.headers['x-total-count']/members.headers['x-per-page'])
-  };
+
+  var updatePaginationData = function () {
+    $scope.pagination = {
+      currentPage: $stateParams.page ? $stateParams.page : 1,
+      maxSize: 5,
+      totalItems: $scope.members.headers['x-total-count'],
+      itemsPerPage: $scope.members.headers['x-per-page'],
+      numPages: parseInt($scope.members.headers['x-total-count']/$scope.members.headers['x-per-page'])
+    };
+  }
+
+  updatePaginationData();
 
   $scope.$on('$locationChangeSuccess', function(){
-    $scope.members = Api.Members().query($stateParams);
+    $scope.members = Api.Members().query($stateParams, updatePaginationData);
   });
 
   // Used for disabling action buttons
