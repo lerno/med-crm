@@ -44,9 +44,9 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
   }
 
   // Set scope variables for sort parameters
-  var sortParams = ['member_number', 'member_until'];
+  var sortParams = ['member_number', 'member_until', 'email'];
 
-  $scope.$on('$locationChangeStart', function(event, toState, toParams, fromState, fromParams) {
+  var setSortVars = function () {
     for (var i=0;i<sortParams.length;i++) {
       var _prop = 'sortBy' + sortParams[i][0].toUpperCase() + sortParams[i].slice(1);
 /*
@@ -58,8 +58,10 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
 */
       $scope[_prop] = $stateParams.sort === sortParams[i] ? '-' + sortParams[i] : sortParams[i];
     }
+  }
 
-  });
+  setSortVars();
+  $scope.$on('$locationChangeStart', setSortVars);
 
   // Pagination
   $scope.pageChanged = function () {
