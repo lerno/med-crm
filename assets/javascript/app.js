@@ -24,7 +24,7 @@ var askCrm = angular.module('askCrm', [
 
 askCrm.constant('APIURI', appConfig.apiUri)
 
-.config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider) {
+.config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', '$logProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider, $logProvider) {
   $urlRouterProvider.otherwise( function($injector) {
     var $state = $injector.get("$state");
 
@@ -34,6 +34,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
   $locationProvider.html5Mode(appConfig.html5Mode);
 
   $cookiesProvider.defaults.path = '/';
+
+  $logProvider.debugEnabled(appConfig.debugModeEnabled);
 }])
 
 .filter('getById', function() {

@@ -16,4 +16,4 @@ angular.module('askCrm.members.import', [
     })
 }])
 
-.controller('MembersImportCtrl', ['$scope', '$timeout', '$state', 'Upload', 'sweet', 'APIURI', MembersImportCtrl])
+.controller('MembersImportCtrl', ['$scope', '$timeout', '$state', '$log', 'Upload', 'sweet', 'APIURI', MembersImportCtrl])

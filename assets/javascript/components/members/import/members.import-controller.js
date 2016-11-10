@@ -1,4 +1,4 @@
-function MembersImportCtrl($scope, $timeout, $state, Upload, sweet, APIURI) {
+function MembersImportCtrl($scope, $timeout, $state, $log, Upload, sweet, APIURI) {
   $scope.$watch('file', function () {
     $scope.upload($scope.file);
   });
