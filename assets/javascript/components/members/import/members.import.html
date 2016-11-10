@@ -1,14 +1,36 @@
 <h1>Importera medlemmar</h1>
-<div 
-  ngf-drop 
-  ngf-select 
-  ng-model="file" 
-  class="drop-box" 
-  ngf-drag-over-class="'dragover'" 
-  ngf-multiple="false" 
-  ngf-allow-dir="true"
-  accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
-  style="width: 400px; height: 200px; border: 10px dashed black; text-align: center; padding-top: 40px;">
-    Släpp Excel-filen här för att ladda upp
+<div class="row">
+  <div class="col-md-4 col-md-push-8">
+    <div class="col-md-12 col-sm-8">
+      <div class="panel panel-default" ng-show="file">
+        <div class="panel-heading">
+          Uppladdningsstatus
+        </div>
+        <div class="panel-body">
+          <p ng-bind="uploadStatus"></p>
+          <p ng-hide="uploadServerResponseDone">
+            Servern bearbetar filen...
+          </p>
+          <p ng-show="uploadServerResponseDone">
+            Servern är färdig.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8 col-md-pull-4">
+    <div 
+      ngf-drop 
+      ngf-select 
+      ng-model="file" 
+      class="drop-box" 
+      ngf-drag-over-class="'dragover'" 
+      ngf-multiple="false" 
+      ngf-allow-dir="true"
+      accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+      style="width: 400px; height: 200px; border: 10px dashed black; text-align: center; padding-top: 40px;">
+        Släpp Excel-filen här för att ladda upp
+    </div>
+    <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+  </div>
 </div>
-<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
