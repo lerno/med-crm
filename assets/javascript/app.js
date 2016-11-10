@@ -50,7 +50,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
   }
 })
 
-.run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'editableOptions', 'editableThemes', 'principal', function ($rootScope, $q, sweet, PermissionStore, editableOptions, editableThemes, principal) {
+.run(['$rootScope', '$q', '$state', 'sweet', 'PermissionStore', 'editableOptions', 'editableThemes', 'principal', function ($rootScope, $q, $state, sweet, PermissionStore, editableOptions, editableThemes, principal) {
 
   $rootScope.$on('httpRejection', function(event, args) {
     switch (args.status) {
@@ -64,7 +64,13 @@ askCrm.constant('APIURI', appConfig.apiUri)
   })
 
   $rootScope.$on('$stateChangePermissionDenied', function(event, toState, toParams, options) {
-    sweet.show('Oops...', 'Du har inte rättighet till denna sida.', 'error');
+    sweet.show({
+      title: 'Oops...', 
+      text: 'Du har inte rättighet till denna sida.', 
+      type: 'error'
+    }, function () {
+      $state.go('start');
+    });
   });
 
   // Check if we're logged in
@@ -92,6 +98,9 @@ askCrm.constant('APIURI', appConfig.apiUri)
         } else {
           deferred.reject();
         }
+      }, function () {
+        // The identity check got rejected
+        deferred.reject();
       });
       return deferred.promise;
     });
