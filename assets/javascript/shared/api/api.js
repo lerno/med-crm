@@ -38,6 +38,33 @@ angular.module('askCrm.api', [
 
 .factory('Api', ['$rootScope', '$resource', 'APIURI', function($rootScope, $resource, APIURI) {
 
+  function transformResponseForFileDownload (data, headers) {
+    function getFileNameFromHttpHeaders(httpHeaders) {
+      var contentDispositionHeader = httpHeaders('Content-Disposition');
+      var result = contentDispositionHeader.split(';')[1].trim().split('=')[1];
+      return result.replace(/"/g, '');
+    }
+
+    var file = null;
+    if (data) {
+      file = new Blob([data], {
+        type: headers('Content-Type')
+      });
+    }
+
+    //server should sent content-disposition header
+    var fileName = getFileNameFromHttpHeaders(headers);
+    var result = {
+      blob: file,
+      contentType: headers('Content-Type'),
+      fileName: fileName
+    };
+
+    return {
+      response: result
+    };
+  }
+
   return {
 
     Users: function() {
@@ -89,6 +116,16 @@ angular.module('askCrm.api', [
         bulkUpdate: {
           method: 'PUT',
           url: APIURI + '/members/bulk-update'
+        },
+        export: {
+          method: 'POST',
+          url: APIURI + '/members/export/:format',
+          responseType: 'arraybuffer',
+          headers: {
+              accept: ['application/vnd.ms-excel', 'text/csv']
+          },
+          cache: false,
+          transformResponse: transformResponseForFileDownload
         }
       });
     },
@@ -144,6 +181,16 @@ angular.module('askCrm.api', [
         getNextUrl: {
           method: 'GET',
           url: APIURI + '/payments/get-next-url/:externalId'
+        },
+        export: {
+          method: 'POST',
+          url: APIURI + '/payments/export/:format',
+          responseType: 'arraybuffer',
+          headers: {
+              accept: ['application/vnd.ms-excel', 'text/csv']
+          },
+          cache: false,
+          transformResponse: transformResponseForFileDownload
         }
       })
     }

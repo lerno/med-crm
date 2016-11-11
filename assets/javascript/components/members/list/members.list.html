@@ -47,10 +47,13 @@
         <div class="panel-heading">Agera</div>
         <div class="panel-body">
           <div class="btn-block">
-          <div ui-view="paymentReminderButton"></div>
+            <div ui-view="paymentReminderButton"></div>
           </div>
           <div class="btn-block">
-          <button ng-click="resetBirthdates()" ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default">Noll ställ födelsedatum</button>
+            <button ng-click="resetBirthdates()" ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default">Noll ställ födelsedatum</button>
+          </div>
+          <div class="btn-block">
+            <div ui-view="exportButton"></div>
           </div>
         </div>
       </div>

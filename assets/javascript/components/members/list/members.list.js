@@ -1,6 +1,7 @@
 angular.module('askCrm.members.list', [
   'askCrm',
   'ui.bootstrap.dropdown',
+  'askCrm.exportButton',
   'askCrm.members.paymentReminderButton'
   ])
 
@@ -27,6 +28,10 @@ angular.module('askCrm.members.list', [
         'paymentReminderButton@members.list': {
           templateUrl: '/components/members/payment-reminder-button/members.payment-reminder-button.html',
           controller: 'MembersPaymentReminderButtonCtrl',
+        },
+        'exportButton@members.list': {
+          templateUrl: '/components/export-button/export-button.html',
+          controller: 'ExportButtonCtrl',
         }
       }
 

@@ -72,6 +72,7 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
    * Actions start
    */
 
+   // Reset birthdates 
   $scope.resetBirthdates = function () {
     var members = [];
 
@@ -105,6 +106,29 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
           });
         });
       }
+    });
+  }
+  
+  // Export members
+  $scope.exportData = function(format)
+  {
+    Api.Members().export({format: format}, $stateParams, function(data, headers) {
+
+      // Make the file download
+      var url = URL.createObjectURL(new Blob([data.response.blob], {
+        type: data.response.contentType
+      }));
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = data.response.fileName;
+      a.target = '_blank';
+      a.click();
+    }, function(response) {
+      sweet.show({
+        title: response.status + ' Ops!',
+        text: response.data.message,
+        confirmButtonText: 'Okej',
+      });
     });
   }
 
