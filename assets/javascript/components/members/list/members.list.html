@@ -34,6 +34,11 @@
               <input type="checkbox" ng-checked="isFilterEnabled('duplicates')" ng-click="toggleFilter('duplicates')" /> Dubletter (e-post/telefonnummer)
             </label>
           </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" ng-checked="isFilterEnabled('too_old_birthdate')" ng-click="toggleFilter('too_old_birthdate')" /> Orimligt gamla människor (födda 1900-01-11 el tidigare)
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -41,7 +46,12 @@
       <div class="panel panel-default">
         <div class="panel-heading">Agera</div>
         <div class="panel-body">
+          <div class="btn-block">
           <div ui-view="paymentReminderButton"></div>
+          </div>
+          <div class="btn-block">
+          <button ng-click="resetBirthdates()" ng-disabled="(members.data | filter:selectedFilter).length === 0" class="btn btn-default">Noll ställ födelsedatum</button>
+          </div>
         </div>
       </div>
     </div>

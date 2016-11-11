@@ -85,6 +85,10 @@ angular.module('askCrm.api', [
         getMembershipPrice: {
           method: 'GET',
           url: APIURI + '/members/:id/membership-price'
+        },
+        bulkUpdate: {
+          method: 'PUT',
+          url: APIURI + '/members/bulk-update'
         }
       });
     },

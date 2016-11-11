@@ -7,7 +7,7 @@ angular.module('askCrm.members.list', [
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('members.list', {
-      url: '/list?sort&personal_number&email&last_name&no_payment_reminder&duplicates&page',
+      url: '/list?sort&personal_number&email&last_name&no_payment_reminder&duplicates&page&too_old_birthdate&outgoing_membership',
       reloadOnSearch: false,
       resolve: {
         members: ['$stateParams', 'Api', function($stateParams, Api) {
