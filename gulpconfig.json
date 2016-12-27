@@ -34,6 +34,7 @@
           "./app/bower_components/angular-permission/dist/angular-permission.js",
           "./app/bower_components/sweetalert/dist/sweetalert.min.js",
           "./app/bower_components/angular-sweetalert/dist/ngSweetAlert.js",
+          "./app/bower_components/angular-loading-bar/build/loading-bar.min.js",
           "./assets/javascript/**/*.js",
           "!./assets/javascript/**/*_test.js"
           ],
@@ -146,6 +147,7 @@
           "./app/bower_components/angular-permission/dist/angular-permission.js",
           "./app/bower_components/sweetalert/dist/sweetalert.min.js",
           "./app/bower_components/angular-sweetalert/dist/ngSweetAlert.js",
+          "./app/bower_components/angular-loading-bar/build/loading-bar.min.js",
           "./assets/javascript/**/*.js",
           "!./assets/javascript/**/*_test.js"
         ],

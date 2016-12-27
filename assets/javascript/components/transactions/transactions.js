@@ -1,5 +1,6 @@
 angular.module('askCrm.payments', [
-  'askCrm'
+  'askCrm',
+  'askCrm.exportButton'
   ]
 )
 
@@ -7,14 +8,22 @@ angular.module('askCrm.payments', [
   $stateProvider
     .state('transactions', {
       url: '/transactions?page',
-      templateUrl: '/components/transactions/transactions.html',
-      controller: 'TransactionsCtrl',
       resolve: {
         transactions: ['$stateParams', 'Api', function ($stateParams, Api) {
           return Api.Payments().query($stateParams).$promise;
         }]
+      },
+      views: {
+        '': {
+          templateUrl: '/components/transactions/transactions.html',
+          controller: 'TransactionsCtrl',
+        },
+        'exportButton@transactions': {
+          templateUrl: '/components/export-button/export-button.html',
+          controller: 'ExportButtonCtrl',
+        }
       }
     });
 }])
 
-.controller('TransactionsCtrl', ['$scope', '$state', '$stateParams', 'transactions', TransactionsCtrl])
+.controller('TransactionsCtrl', ['$scope', '$state', '$stateParams', 'Api', 'transactions', TransactionsCtrl])

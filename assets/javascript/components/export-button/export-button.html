@@ -1,0 +1,11 @@
+<div class="btn-group" uib-dropdown is-open="status.isopen">
+  <button uib-dropdown-toggle class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Exportera <span class="caret"></span></button>
+  <ul uib-dropdown-menu class="dropdown-menu">
+    <li><a href="" ng-click="exportData('xls')">Exportera som Excel</a></li>
+    <li><a href="" ng-click="exportData('csv')">Exportera som CSV</a></li>
+  </ul>
+</div>
+
+<button type="button" class="btn btn-default" aria-label="Information om exportering" ng-click="exportInfo()">
+  <span class="glyphicon glyphicon-info-sign"></span>
+</button>

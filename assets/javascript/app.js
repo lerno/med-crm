@@ -19,12 +19,13 @@ var askCrm = angular.module('askCrm', [
   'checklist-model',
   'ngCookies',
   'ngFileUpload',
-  'hSweetAlert'
+  'hSweetAlert',
+  'angular-loading-bar'
 ])
 
 askCrm.constant('APIURI', appConfig.apiUri)
 
-.config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', '$logProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider, $logProvider) {
+.config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', '$logProvider', 'cfpLoadingBarProvider', function($urlRouterProvider, $locationProvider, $cookiesProvider, $logProvider, cfpLoadingBarProvider) {
   $urlRouterProvider.otherwise( function($injector) {
     var $state = $injector.get("$state");
 
@@ -36,6 +37,8 @@ askCrm.constant('APIURI', appConfig.apiUri)
   $cookiesProvider.defaults.path = '/';
 
   $logProvider.debugEnabled(appConfig.debugModeEnabled);
+
+  cfpLoadingBarProvider.includeSpinner = false;
 }])
 
 .filter('getById', function() {
@@ -50,7 +53,7 @@ askCrm.constant('APIURI', appConfig.apiUri)
   }
 })
 
-.run(['$rootScope', '$q', 'sweet', 'PermissionStore', 'editableOptions', 'editableThemes', 'principal', function ($rootScope, $q, sweet, PermissionStore, editableOptions, editableThemes, principal) {
+.run(['$rootScope', '$q', '$state', 'sweet', 'PermissionStore', 'editableOptions', 'editableThemes', 'principal', function ($rootScope, $q, $state, sweet, PermissionStore, editableOptions, editableThemes, principal) {
 
   $rootScope.$on('httpRejection', function(event, args) {
     switch (args.status) {
@@ -58,13 +61,27 @@ askCrm.constant('APIURI', appConfig.apiUri)
         sweet.show('Oops...', 'Du har inte rättighet till denna sida.', 'error');
       break;
       default:
-        sweet.show('Oops...', 'Någonting gick fel: ' + args.data.message, 'error');
+        var message;
+
+        if (args.data && typeof args.data.message !== 'undefined') {
+          message = args.data.message;
+        } else {
+          message = 'HTTP-status ' + args.status;
+        }
+
+        sweet.show('Oops...', 'Någonting gick fel: ' + message, 'error');
       break;
     }
   })
 
   $rootScope.$on('$stateChangePermissionDenied', function(event, toState, toParams, options) {
-    sweet.show('Oops...', 'Du har inte rättighet till denna sida.', 'error');
+    sweet.show({
+      title: 'Oops...', 
+      text: 'Du har inte rättighet till denna sida.', 
+      type: 'error'
+    }, function () {
+      $state.go('start');
+    });
   });
 
   // Check if we're logged in
@@ -92,6 +109,9 @@ askCrm.constant('APIURI', appConfig.apiUri)
         } else {
           deferred.reject();
         }
+      }, function () {
+        // The identity check got rejected
+        deferred.reject();
       });
       return deferred.promise;
     });

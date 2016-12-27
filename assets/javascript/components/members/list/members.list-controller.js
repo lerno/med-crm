@@ -68,6 +68,75 @@ function MembersListCtrl($scope, $state, $stateParams, $location, $timeout, swe
   setSortVars();
   $scope.$on('$locationChangeStart', setSortVars);
 
+  /*
+   * Actions start
+   */
+
+   // Reset birthdates 
+  $scope.resetBirthdates = function () {
+    var members = [];
+
+    for (var i=0;i<$scope.members.data.length;i++) {
+      if ($scope.members.data[i].selected == true) {
+        members.push($scope.members.data[i].id);
+      }
+    }
+
+    console.log('members', members);
+
+    sweet.show({
+      title: 'Sure about this?',
+      text: 'Vill du nollställa födelsedatumen för ' + members.length + ' medlemmar?',
+      confirmButtonText: 'Oh, ja',
+      showCancelButton: true,
+      cancelButtonText: 'Nej!'
+    },
+    function (didConfirm) {
+      if (didConfirm) {
+        Api.Members().bulkUpdate({ids: members}, function(data) {
+          sweet.show('Sådär!', 'Då var födelsedatumen nollställda. Bon apetit!', 'success');
+          $state.reload();
+        }, function(response) {
+          sweet.show({
+            title: response.status + ' Ops!',
+            text: response.data.message,
+            confirmButtonText: 'Okej',
+          },
+          function (didConfirm) {
+          });
+        });
+      }
+    });
+  }
+  
+  // Export members
+  $scope.exportData = function(format)
+  {
+    Api.Members().export({format: format}, $stateParams, function(data, headers) {
+
+      // Make the file download
+      var url = URL.createObjectURL(new Blob([data.response.blob], {
+        type: data.response.contentType
+      }));
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = data.response.fileName;
+      a.target = '_blank';
+      a.click();
+    }, function(response) {
+      sweet.show({
+        title: response.status + ' Ops!',
+        text: response.data.message,
+        confirmButtonText: 'Okej',
+      });
+    });
+  }
+
+
+  /*
+   * Actions end
+   */
+
   // Pagination
   $scope.pageChanged = function () {
     $state.go('members.list', {page: $scope.pagination.currentPage});
