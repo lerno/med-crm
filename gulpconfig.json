@@ -16,7 +16,7 @@
       {
         "src": "./assets/config.js",
         "dest": "./app/assets",
-        "concat": false
+        "concat": true
       },
       {
         "src": [
