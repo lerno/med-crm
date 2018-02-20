@@ -1,9 +1,8 @@
-function MembersImportCtrl($scope, $timeout, $state, $log, Upload, sweet, APIURI) {
-
+export default function MembersImportCtrl($scope, $timeout, $state, $log, Upload, sweet, APIURI) {
   $scope.uploadStatus;
   $scope.uploadServerResponseDone;
 
-  $scope.$watch('file', function () {
+  $scope.$watch('file', () => {
     $scope.upload($scope.file);
   });
 
@@ -19,35 +18,34 @@ function MembersImportCtrl($scope, $timeout, $state, $log, Upload, sweet, APIURI
 
     if (!file.$error) {
       $scope.uploadServerResponseDone = false;
-      
-      var upload = Upload.upload({
-        url: APIURI + '/members/import',
+
+      const upload = Upload.upload({
+        url: `${APIURI}/members/import`,
         data: {
-          file: file  
-        }
+          file,
+        },
       });
-      upload.then(function (resp) {
+      upload.then((resp) => {
         $scope.uploadServerResponseDone = true;
-        $timeout(function() {
+        $timeout(() => {
           sweet.show('Importerat!', 'Medlemmarna har importerats i databasen.', 'success');
         });
-      }, function (resp) {
+      }, (resp) => {
         // Error
         $log.log(resp);
-        sweet.show('Någonting gick fel!', 'Felkod ' + resp.status, 'error');
-        $scope.uploadStatus = 'Någonting gick fel: ' + resp.status;
-      }, function (evt) {
-          var progressPercentage = parseInt(100.0 *
+        sweet.show('Någonting gick fel!', `Felkod ${resp.status}`, 'error');
+        $scope.uploadStatus = `Någonting gick fel: ${resp.status}`;
+      }, (evt) => {
+        const progressPercentage = parseInt(100.0 *
               evt.loaded / evt.total);
-          $scope.log = evt.config.data.file.name + ' - ' + progressPercentage + 
-            '% uppladdat';
-          $log.log($scope.log);
-          $scope.uploadStatus = $scope.log;
+        $scope.log = `${evt.config.data.file.name} - ${progressPercentage
+        }% uppladdat`;
+        $log.log($scope.log);
+        $scope.uploadStatus = $scope.log;
       });
 
-//      upload.catch(errorCallback);
-//upload.finally(callback, notifyCallback);
-
+      //      upload.catch(errorCallback);
+      // upload.finally(callback, notifyCallback);
     }
   };
 }

@@ -1,15 +1,17 @@
+import angular from 'angular';
+
 angular.module('askCrm.pay.parseToken', [
-  'askCrm'
-  ])
+  'askCrm',
+])
 
-.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-  $stateProvider
-    .state('pay.parseToken', {
-      url: '/parse-token?token',
-      parent: 'pay',
-      templateUrl: '/components/pay/parseToken/pay.parseToken.html',
-      controller: 'PayParseTokenCtrl'
-    })
-}])
+  .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
+    $stateProvider
+      .state('pay.parseToken', {
+        url: '/parse-token?token',
+        parent: 'pay',
+        templateUrl: '/components/pay/parseToken/pay.parseToken.html',
+        controller: 'PayParseTokenCtrl',
+      });
+  }])
 
-.controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl])
+  .controller('PayParseTokenCtrl', ['$scope', '$stateParams', 'Api', PayParseTokenCtrl]);

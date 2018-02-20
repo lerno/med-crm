@@ -1,4 +1,4 @@
-function TransactionsCtrl($scope, $state, $stateParams, Api, payments) {
+export default function TransactionsCtrl($scope, $state, $stateParams, Api, payments) {
   $scope.payments = payments;
 
   $scope.pagination = {
@@ -6,33 +6,31 @@ function TransactionsCtrl($scope, $state, $stateParams, Api, payments) {
     maxSize: 5,
     totalItems: payments.headers['x-total-count'],
     itemsPerPage: payments.headers['x-per-page'],
-    numPages: parseInt(payments.headers['x-total-count']/payments.headers['x-per-page'])
+    numPages: parseInt(payments.headers['x-total-count'] / payments.headers['x-per-page']),
   };
 
   $scope.pageChanged = function () {
-    $state.go('transactions', {page: $scope.pagination.currentPage});
-  }
+    $state.go('transactions', { page: $scope.pagination.currentPage });
+  };
 
   // Export transactions
-  $scope.exportData = function(format)
-  {
-    Api.Payments().export({format: format}, $stateParams, function(data, headers) {
-
+  $scope.exportData = function (format) {
+    Api.Payments().export({ format }, $stateParams, (data, headers) => {
       // Make the file download
-      var url = URL.createObjectURL(new Blob([data.response.blob], {
-        type: data.response.contentType
+      const url = URL.createObjectURL(new Blob([data.response.blob], {
+        type: data.response.contentType,
       }));
-      var a = document.createElement('a');
+      const a = document.createElement('a');
       a.href = url;
       a.download = data.response.fileName;
       a.target = '_blank';
       a.click();
-    }, function(response) {
+    }, (response) => {
       sweet.show({
-        title: response.status + ' Ops!',
+        title: `${response.status} Ops!`,
         text: response.data.message,
         confirmButtonText: 'Okej',
       });
     });
-  }
+  };
 }

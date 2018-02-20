@@ -1,8 +1,11 @@
+import angular from 'angular';
+import MembersPaymentReminderButtonCtrl from './members.payment-reminder-button-controller';
+
 angular.module('askCrm.members.paymentReminderButton', [
   'askCrm.api',
   'ui.bootstrap.dropdown',
-  'hSweetAlert'
-  ])
+  'oitozero.ngSweetAlert',
+])
 
-.controller('MembersPaymentReminderButtonCtrl', ['$scope', '$state', 'sweet', 'Api', MembersPaymentReminderButtonCtrl])
+  .controller('MembersPaymentReminderButtonCtrl', ['$scope', '$state', 'SweetAlert', 'Api', MembersPaymentReminderButtonCtrl]);
 

@@ -1,46 +1,48 @@
-angular.module('kPrincipal', [
-  'ngCookies'
-  ])
+import angular from 'angular';
 
-.factory('principal', ['$rootScope', '$q', '$http', '$timeout', '$cookies', 'Api', function($rootScope, $q, $http, $timeout, $cookies, Api) {
-    var _identity = undefined,
+angular.module('kPrincipal', [
+  'ngCookies',
+])
+
+  .factory('principal', ['$rootScope', '$q', '$http', '$timeout', '$cookies', 'Api', function ($rootScope, $q, $http, $timeout, $cookies, Api) {
+    let _identity,
       _authenticated = false,
       _isLookingForIdentity = false;
 
     return {
-      isIdentityResolved: function() {
+      isIdentityResolved() {
         return angular.isDefined(_identity);
       },
-      isAuthenticated: function() {
+      isAuthenticated() {
         return _authenticated;
       },
-      isInRole: function(role) {
+      isInRole(role) {
         if (!_authenticated || !_identity.roles) return false;
 
-        for (var i=0;i<_identity.roles.length;i++) {
-          if( _identity.roles[i].name === role ) {
+        for (let i = 0; i < _identity.roles.length; i++) {
+          if (_identity.roles[i].name === role) {
             return true;
           }
         }
 
         return false;
       },
-      isInAnyRole: function(roles) {
+      isInAnyRole(roles) {
         if (!_authenticated || !_identity.roles) return false;
 
-        for (var i = 0; i < roles.length; i++) {
+        for (let i = 0; i < roles.length; i++) {
           if (this.isInRole(roles[i])) return true;
         }
 
         return false;
       },
-      authenticate: function(identity) {
+      authenticate(identity) {
         _identity = identity;
         $rootScope.currentUser = identity;
         _authenticated = identity != null;
         $rootScope.$broadcast('userAuthenticationChanged');
       },
-      unsetIdentity: function() {
+      unsetIdentity() {
         _identity = undefined;
         _authenticated = false;
         $cookies.remove('token');
@@ -48,8 +50,8 @@ angular.module('kPrincipal', [
         $rootScope.currentUser = undefined;
         $rootScope.$broadcast('userAuthenticationChanged');
       },
-      identity: function(force) {
-        var deferred = $q.defer();
+      identity(force) {
+        const deferred = $q.defer();
 
         if (force === true) _identity = undefined;
 
@@ -64,30 +66,28 @@ angular.module('kPrincipal', [
           deferred.reject(undefined);
         } else {
           if (_isLookingForIdentity === true && force !== true) {
-            var _d = $q.defer();
-            $rootScope.$on('userAuthenticationChanged', function() {
-              return _d.resolve(_identity);
-            })
+            const _d = $q.defer();
+            $rootScope.$on('userAuthenticationChanged', () => _d.resolve(_identity));
             return _d.promise;
           }
 
-          var self = this;
+          const self = this;
           _isLookingForIdentity = true;
 
-          Api.Users().get({id: $cookies.get('user_id')}, function(data) {
-              self.authenticate(data);
-              deferred.resolve(_identity);
-              _isLookingForIdentity = false;
-          }, function(data){
-              self.unsetIdentity();
-              deferred.reject(data);
-              _isLookingForIdentity = false;
+          Api.Users().get({ id: $cookies.get('user_id') }, (data) => {
+            self.authenticate(data);
+            deferred.resolve(_identity);
+            _isLookingForIdentity = false;
+          }, (data) => {
+            self.unsetIdentity();
+            deferred.reject(data);
+            _isLookingForIdentity = false;
           });
         }
 
         return deferred.promise;
-      }
+      },
     };
-  }
-])
+  },
+  ]);
 

@@ -1,8 +1,8 @@
-function StartCtrl($scope, $timeout, principal) {
-  $timeout(function() {
+export default function StartCtrl($scope, $timeout, principal) {
+  $timeout(() => {
     console.log(principal.isAuthenticated());
   });
-  principal.identity().then(function(data) {
+  principal.identity().then((data) => {
     console.log('data', data);
   });
 }

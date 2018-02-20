@@ -13,7 +13,6 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- inject:css -->
-  <link rel="stylesheet" href="/assets/css/base-b7d22d8e54.css">
   <!-- endinject -->
   </head>
 <body>
@@ -29,23 +28,23 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" ui-sref="start">
-            <img src="/assets/images/logo-25cd4b6b50.png" width="60" />
+            <img src="/dist/c920ca0ec82973f5b5b3514c092c02b7.png" width="60">
           </a>
         </div>
     
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav" ng-if="currentUser">
-            <li ui-sref-active="active" permission only="'admin'">
+            <li ui-sref-active="active" permission="" only="'admin'">
               <a ui-sref="members.list">Lista medlemmar<span class="sr-only">(current)</span></a>
             </li>
-            <li ui-sref-active="active" permission only="'admin'">
+            <li ui-sref-active="active" permission="" only="'admin'">
               <a ui-sref="members.add">Lägg till medlem</a>
             </li>
-            <li ui-sref-active="active" permission only="'admin'">
+            <li ui-sref-active="active" permission="" only="'admin'">
               <a ui-sref="transactions">Inbetalningar</a>
             </li>
-            <li ui-sref-active="active" permission only="'admin'">
+            <li ui-sref-active="active" permission="" only="'admin'">
               <a ui-sref="members.import">Importera medlemmar</a>
             </li>
             <li ui-sref-active="active" class="pull-right" ng-show="currentUser">
@@ -58,14 +57,10 @@
   </header>
   <main>
     <div class="container">
-      <div ui-view></div>
+      <div ui-view=""></div>
     </div>
   </main>
 
-  <!-- inject:js -->
-  <script src="/assets/config.js"></script>
-  <script src="/assets/javascript/all-4ccc600baa.js"></script>
-  <script src="/assets/templates-27c5776c98.js"></script>
-  <!-- endinject -->
+  <script src="/dist/58c60b4cf8dc5363684032467230421a.js"></script>
   </body>
 </html>

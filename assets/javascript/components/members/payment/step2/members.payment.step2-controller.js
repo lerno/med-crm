@@ -1,5 +1,4 @@
-function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, $http, member, paymentInfo) {
-
+export default function MembersAddPaymentStepTwoCtrl($scope, $sce, $stateParams, $http, member, paymentInfo) {
   $scope.items = paymentInfo.items;
   $scope.paymentMethod = paymentInfo.payment_method;
 
@@ -10,11 +9,10 @@ function MembersAddPaymentStepTwoCtrl ($scope, $sce, $stateParams, $http, member
   }
 
   $scope.confirmPayment = function (e) {
-//    e.preventDefault();
+    //    e.preventDefault();
 
-    $http.post($scope.next_url, {items: $scope.items, personal_number: $scope.personalNumber}, function() {
+    $http.post($scope.next_url, { items: $scope.items, personal_number: $scope.personalNumber }, () => {
 
     });
-  }
-
+  };
 }
