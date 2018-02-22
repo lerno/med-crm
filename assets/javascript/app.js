@@ -111,7 +111,10 @@ askCrm.constant('APIURI', appConfig.apiUrl)
     });
 
     // Check if we're logged in
-    principal.identity();
+    principal.identity()
+      .catch(error => {
+        console.error('Failed to authenticate due to', error);
+      });
 
     // Define anonymous permission
     PermissionStore

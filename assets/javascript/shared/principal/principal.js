@@ -63,7 +63,7 @@ angular.module('kPrincipal', [
         }
 
         if (!$cookies.get('user_id')) {
-          deferred.reject(undefined);
+          deferred.reject('You\'re not logged in.');
         } else {
           if (_isLookingForIdentity === true && force !== true) {
             const _d = $q.defer();
