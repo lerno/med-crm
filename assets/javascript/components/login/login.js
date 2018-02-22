@@ -5,6 +5,7 @@ import '../members/members';
 
 import LoginCtrl from './login-controller.js';
 import LoginWithTokenCtrl from './loginWithToken-controller.js';
+import LoginTemplate from './login.html';
 
 angular.module('askCrm.login', [
   'askCrm',
@@ -17,7 +18,7 @@ angular.module('askCrm.login', [
     $stateProvider
       .state('login', {
         url: '/login',
-        templateUrl: '/components/login/login.html',
+        template: LoginTemplate,
         controller: 'LoginCtrl',
       })
       .state('loginWithToken', {

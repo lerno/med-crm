@@ -6,6 +6,7 @@
   "repository": "https://bitbucket.org/kontrollanten/ask-crm",
   "license": "MIT",
   "devDependencies": {
+    "babel-plugin-transform-html-import-to-string": "0.0.1",
     "bootstrap-sass": "~3.3.6",
     "browser-sync": "^2.10.0",
     "checklist-model": "^0.9.0",
