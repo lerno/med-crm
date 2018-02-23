@@ -1,4 +1,5 @@
 import angular from 'angular';
+import MembersImportTemplate from './members.import.html'
 import MembersImportCtrl from './members.import-controller';
 
 angular.module('askCrm.members.import', [
@@ -9,7 +10,7 @@ angular.module('askCrm.members.import', [
     $stateProvider
       .state('members.import', {
         url: '/import',
-        templateUrl: '/components/members/import/members.import.html',
+        template: MembersImportTemplate,
         controller: 'MembersImportCtrl',
         data: {
           permissions: {

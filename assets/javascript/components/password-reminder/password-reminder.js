@@ -1,4 +1,6 @@
 import angular from 'angular';
+import PwdReminderResetTemplate from './password-reminder.reset.html'
+import PwdReminderEmailTemplate from './password-reminder.email.html'
 
 import PwdReminderEmailCtrl from './password-reminder.email-controller';
 import PwdReminderResetCtrl from './password-reminder.reset-controller';
@@ -16,12 +18,12 @@ angular.module('askCrm.passwordReminder', [
       })
       .state('passwordReminder.email', {
         url: '/email',
-        templateUrl: '/components/password-reminder/password-reminder.email.html',
+        template: PwdReminderEmailTemplate,
         controller: 'PwdReminderEmailCtrl',
       })
       .state('passwordReminder.reset', {
         url: '/reset?token',
-        templateUrl: '/components/password-reminder/password-reminder.reset.html',
+        template: PwdReminderEmailTemplate,
         controller: 'PwdReminderResetCtrl',
       });
   }])

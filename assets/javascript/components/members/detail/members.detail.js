@@ -1,4 +1,7 @@
 import angular from 'angular';
+import MembersPaymentReminderButtonTemplate from './../payment-reminder-button/members.payment-reminder-button.html'
+import MembersDetailPersonTemplate from './person/members.detail.person.html'
+import MembersDetailTemplate from './members.detail.html'
 import './person/members.detail.person';
 import MembersDetailCtrl from './members.detail-controller';
 
@@ -19,15 +22,15 @@ angular.module('askCrm.members.detail', [
         },
         views: {
           '': {
-            templateUrl: '/components/members/detail/members.detail.html',
+            template: MembersDetailTemplate,
             controller: 'MembersDetailCtrl',
           },
           'personDetail@members.detail': {
-            templateUrl: '/components/members/detail/person/members.detail.person.html',
+            template: MembersDetailTemplate,
             controller: 'MembersDetailPersonCtrl',
           },
           'paymentReminderButton@members.detail': {
-            templateUrl: '/components/members/payment-reminder-button/members.payment-reminder-button.html',
+            template: MembersDetailTemplate,
             controller: 'MembersPaymentReminderButtonCtrl',
           },
         },

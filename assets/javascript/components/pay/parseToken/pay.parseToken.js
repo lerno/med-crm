@@ -1,4 +1,5 @@
 import angular from 'angular';
+import PayParseTokenTemplate from './pay.parseToken.html'
 
 angular.module('askCrm.pay.parseToken', [
   'askCrm',
@@ -9,7 +10,7 @@ angular.module('askCrm.pay.parseToken', [
       .state('pay.parseToken', {
         url: '/parse-token?token',
         parent: 'pay',
-        templateUrl: '/components/pay/parseToken/pay.parseToken.html',
+        template: PayParseTokenTemplate,
         controller: 'PayParseTokenCtrl',
       });
   }])

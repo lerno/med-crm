@@ -1,4 +1,5 @@
 import angular from 'angular';
+import MembersAddTemplate from './members.add.html'
 import MembersAddCtrl from './members.add-controller';
 
 angular.module('askCrm.members.add', [
@@ -8,7 +9,7 @@ angular.module('askCrm.members.add', [
     $stateProvider
       .state('members.add', {
         url: '/add',
-        templateUrl: '/components/members/add/members.add.html',
+        template: MembersAddTemplate,
         controller: 'MembersAddCtrl',
         data: {
           permissions: {

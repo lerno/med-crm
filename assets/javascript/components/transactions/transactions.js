@@ -1,4 +1,6 @@
 import angular from 'angular';
+import ExportButtonTemplate from './../export-button/export-button.html'
+import TransactionsTemplate from './transactions.html'
 import '../export-button/export-button';
 import TransactionsCtrl from './transactions-controller';
 
@@ -18,11 +20,11 @@ angular.module('askCrm.payments', [
         },
         views: {
           '': {
-            templateUrl: '/components/transactions/transactions.html',
+            template: TransactionsTemplate,
             controller: 'TransactionsCtrl',
           },
           'exportButton@transactions': {
-            templateUrl: '/components/export-button/export-button.html',
+            template: TransactionsTemplate,
             controller: 'ExportButtonCtrl',
           },
         },

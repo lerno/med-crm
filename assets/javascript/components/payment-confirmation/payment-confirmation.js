@@ -1,4 +1,5 @@
 import angular from 'angular';
+import PaymentConfirmationTemplate from './payment-confirmation.html'
 
 import PaymentConfirmationCtrl from './payment-confirmation-controller';
 
@@ -12,7 +13,7 @@ angular.module('askCrm.paymentConfirmation', [
       .state('payments', {
         url: '/payments?klarna_order&payment_method_id',
         controller: 'PaymentConfirmationCtrl',
-        templateUrl: '/components/payment-confirmation/payment-confirmation.html',
+        template: PaymentConfirmationTemplate,
         resolve: {
           klarnaId: ['$stateParams', function ($stateParams) {
             let _split = $stateParams.klarna_order.split('/'),

@@ -1,4 +1,7 @@
 import angular from 'angular';
+import ExportButtonTemplate from './../../export-button/export-button.html'
+import MembersPaymentReminderButtonTemplate from './../payment-reminder-button/members.payment-reminder-button.html'
+import MembersListTemplate from './members.list.html'
 
 import '../../export-button/export-button';
 import '../payment-reminder-button/members.payment-reminder-button';
@@ -29,15 +32,15 @@ angular.module('askCrm.members.list', [
         },
         views: {
           '': {
-            templateUrl: '/components/members/list/members.list.html',
+            template: MembersListTemplate,
             controller: 'MembersListCtrl',
           },
           'paymentReminderButton@members.list': {
-            templateUrl: '/components/members/payment-reminder-button/members.payment-reminder-button.html',
+            template: MembersListTemplate,
             controller: 'MembersPaymentReminderButtonCtrl',
           },
           'exportButton@members.list': {
-            templateUrl: '/components/export-button/export-button.html',
+            template: MembersListTemplate,
             controller: 'ExportButtonCtrl',
           },
         },

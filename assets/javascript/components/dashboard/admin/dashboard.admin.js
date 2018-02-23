@@ -1,4 +1,5 @@
 import angular from 'angular';
+import DashboardAdminTemplate from './dashboard.admin.html'
 import DashboardAdminCtrl from './dashboard.admin-controller';
 
 angular.module('askCrm.dashboard.admin', [
@@ -10,7 +11,7 @@ angular.module('askCrm.dashboard.admin', [
       .state('dashboard.admin', {
         url: '/admin',
         controller: 'DashboardAdminCtrl',
-        templateUrl: '/components/dashboard/admin/dashboard.admin.html',
+        template: DashboardAdminTemplate,
         resolve: {
           members: ['Api', function (Api) {
             return Api.Members().query().$promise;

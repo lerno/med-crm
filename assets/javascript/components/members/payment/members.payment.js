@@ -1,4 +1,8 @@
 import angular from 'angular';
+import MembersAddPaymentStepTwoTemplate from './step2/members.payment.step2.html'
+import MembersDetailPersonTemplate from './../detail/person/members.detail.person.html'
+import MembersAddPaymentStepOneTemplate from './step1/members.payment.step1.html'
+import MembersAddPaymentTemplate from './members.payment.html'
 import MembersAddPaymentCtrl from './members.payment-controller';
 import MembersAddPaymentStepOneCtrl from './step1/members.payment.step1-controller';
 import MembersAddPaymentStepTwoCtrl from './step2/members.payment.step2-controller';
@@ -13,7 +17,7 @@ angular.module('askCrm.members.payment', [
       .state('members.addPayment', {
         url: '/:id/pay',
         abstract: true,
-        templateUrl: '/components/members/payment/members.payment.html',
+        template: MembersAddPaymentTemplate,
         controller: 'MembersAddPaymentCtrl',
         resolve: {
           price: ['$stateParams', 'Api', function ($stateParams, Api) {
@@ -29,18 +33,18 @@ angular.module('askCrm.members.payment', [
         url: '',
         views: {
           '': {
-            templateUrl: '/components/members/payment/step1/members.payment.step1.html',
+            template: MembersAddPaymentTemplate,
             controller: 'MembersAddPaymentStepOneCtrl',
           },
           'personDetail@members.addPayment.step1': {
-            templateUrl: '/components/members/detail/person/members.detail.person.html',
+            template: MembersAddPaymentTemplate,
             controller: 'MembersDetailPersonCtrl',
           },
         },
       })
       .state('members.addPayment.step2', {
         url: '/:payment_method_id?force',
-        templateUrl: '/components/members/payment/step2/members.payment.step2.html',
+        template: MembersAddPaymentTemplate,
         controller: 'MembersAddPaymentStepTwoCtrl',
         resolve: {
           paymentInfo: ['$stateParams', 'Api', function ($stateParams, Api) {
