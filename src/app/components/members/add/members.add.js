@@ -2,7 +2,7 @@ import angular from 'angular';
 import MembersAddTemplate from './members.add.html'
 import MembersAddCtrl from './members.add-controller';
 
-angular.module('askCrm.members.add', [
+angular.module('medCrm.members.add', [
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

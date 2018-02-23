@@ -1,8 +1,8 @@
 {
-  "name": "ask-crm",
+  "name": "med-crm",
   "private": true,
   "version": "0.0.0",
-  "description": "ASK CRM System",
+  "description": "CRM System",
   "repository": "https://bitbucket.org/kontrollanten/ask-crm",
   "license": "MIT",
   "devDependencies": {

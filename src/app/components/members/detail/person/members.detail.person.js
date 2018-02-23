@@ -3,7 +3,7 @@ import 'angular-bootstrap';
 import 'angular-xeditable';
 import MembersDetailPersonCtrl from './members.detail.person-controller';
 
-angular.module('askCrm.members.detail.person', [
+angular.module('medCrm.members.detail.person', [
   'xeditable',
   'ui.bootstrap',
 ])

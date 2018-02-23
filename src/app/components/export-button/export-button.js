@@ -4,8 +4,8 @@ import 'angular-ui-bootstrap';
 import '../../shared/api/api';
 import ExportButtonCtrl from './export-button-controller';
 
-angular.module('askCrm.exportButton', [
-  'askCrm.api',
+angular.module('medCrm.exportButton', [
+  'medCrm.api',
   'ui.bootstrap.dropdown',
   'oitozero.ngSweetAlert',
 ])

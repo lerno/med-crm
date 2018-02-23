@@ -30,18 +30,18 @@ angular.module('templates', []);
 
 'use strict';
 
-const askCrm = angular.module('askCrm', [
+const medCrm = angular.module('medCrm', [
   'permission',
   'ui.router',
   'ui.bootstrap',
   'templates',
-  'askCrm.start',
-  'askCrm.members',
-  'askCrm.api',
-  'askCrm.login',
-  'askCrm.dashboard',
-  'askCrm.payments',
-  'askCrm.paymentConfirmation',
+  'medCrm.start',
+  'medCrm.members',
+  'medCrm.api',
+  'medCrm.login',
+  'medCrm.dashboard',
+  'medCrm.payments',
+  'medCrm.paymentConfirmation',
   'kPrincipal',
   'xeditable',
   'checklist-model',
@@ -51,7 +51,7 @@ const askCrm = angular.module('askCrm', [
   'angular-loading-bar',
 ]);
 
-askCrm.constant('APIURI', appConfig.apiUrl)
+medCrm.constant('APIURI', appConfig.apiUrl)
 
   .config(['$urlRouterProvider', '$locationProvider', '$cookiesProvider', '$logProvider', 'cfpLoadingBarProvider', '$qProvider', function ($urlRouterProvider, $locationProvider, $cookiesProvider, $logProvider, cfpLoadingBarProvider) {
     $urlRouterProvider.otherwise(($injector) => {

@@ -5,10 +5,10 @@ import MembersDetailTemplate from './members.detail.html'
 import './person/members.detail.person';
 import MembersDetailCtrl from './members.detail-controller';
 
-angular.module('askCrm.members.detail', [
-  'askCrm.members.detail.person',
-  'askCrm',
-  'askCrm.members.paymentReminderButton',
+angular.module('medCrm.members.detail', [
+  'medCrm.members.detail.person',
+  'medCrm',
+  'medCrm.members.paymentReminderButton',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

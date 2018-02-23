@@ -2,8 +2,8 @@ import angular from 'angular';
 import DashboardAdminTemplate from './dashboard.admin.html'
 import DashboardAdminCtrl from './dashboard.admin-controller';
 
-angular.module('askCrm.dashboard.admin', [
-  'askCrm',
+angular.module('medCrm.dashboard.admin', [
+  'medCrm',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

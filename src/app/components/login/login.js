@@ -7,10 +7,10 @@ import LoginCtrl from './login-controller.js';
 import LoginWithTokenCtrl from './loginWithToken-controller.js';
 import LoginTemplate from './login.html';
 
-angular.module('askCrm.login', [
-  'askCrm',
-  'askCrm.passwordReminder',
-  'askCrm.members',
+angular.module('medCrm.login', [
+  'medCrm',
+  'medCrm.passwordReminder',
+  'medCrm.members',
   'ngCookies',
 ])
 

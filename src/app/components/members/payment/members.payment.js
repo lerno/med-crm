@@ -7,9 +7,9 @@ import MembersAddPaymentCtrl from './members.payment-controller';
 import MembersAddPaymentStepOneCtrl from './step1/members.payment.step1-controller';
 import MembersAddPaymentStepTwoCtrl from './step2/members.payment.step2-controller';
 
-angular.module('askCrm.members.payment', [
-  'askCrm.members.detail.person',
-  'askCrm',
+angular.module('medCrm.members.payment', [
+  'medCrm.members.detail.person',
+  'medCrm',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

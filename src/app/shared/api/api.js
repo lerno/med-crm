@@ -2,7 +2,7 @@ import angular from 'angular';
 import 'angular-resource';
 import 'angular-cookies';
 
-angular.module('askCrm.api', [
+angular.module('medCrm.api', [
   'ngResource',
   'ngCookies',
 ])

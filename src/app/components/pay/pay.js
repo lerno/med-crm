@@ -1,8 +1,8 @@
 import angular from 'angular';
 
-angular.module('askCrm.pay', [
-  'askCrm.pay.parseToken',
-  'askCrm',
+angular.module('medCrm.pay', [
+  'medCrm.pay.parseToken',
+  'medCrm',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

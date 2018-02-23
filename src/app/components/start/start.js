@@ -1,8 +1,8 @@
 import angular from 'angular';
 
-angular.module('askCrm.start', [
-  'askCrm.login',
-  'askCrm.members.list',
+angular.module('medCrm.start', [
+  'medCrm.login',
+  'medCrm.members.list',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

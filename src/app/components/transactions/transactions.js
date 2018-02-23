@@ -4,9 +4,9 @@ import TransactionsTemplate from './transactions.html'
 import '../export-button/export-button';
 import TransactionsCtrl from './transactions-controller';
 
-angular.module('askCrm.payments', [
-  'askCrm',
-  'askCrm.exportButton',
+angular.module('medCrm.payments', [
+  'medCrm',
+  'medCrm.exportButton',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

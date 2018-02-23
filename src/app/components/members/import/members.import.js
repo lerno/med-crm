@@ -2,8 +2,8 @@ import angular from 'angular';
 import MembersImportTemplate from './members.import.html'
 import MembersImportCtrl from './members.import-controller';
 
-angular.module('askCrm.members.import', [
-  'askCrm',
+angular.module('medCrm.members.import', [
+  'medCrm',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

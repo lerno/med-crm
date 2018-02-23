@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-angular.module('askCrm.postnummer', ['ngResource'])
+angular.module('medCrm.postnummer', ['ngResource'])
 
   .config(['$resourceProvider', '$httpProvider', function ($resourceProvider, $httpProvider) {
   // Don't strip trailing slashes from calculated URLs

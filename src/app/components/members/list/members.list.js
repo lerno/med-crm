@@ -8,11 +8,11 @@ import '../payment-reminder-button/members.payment-reminder-button';
 import MembersListCtrl from './members.list-controller';
 import ExportButtonCtrl from '../../export-button/export-button-controller';
 
-angular.module('askCrm.members.list', [
-  'askCrm',
+angular.module('medCrm.members.list', [
+  'medCrm',
   'ui.bootstrap.dropdown',
-  'askCrm.exportButton',
-  'askCrm.members.paymentReminderButton',
+  'medCrm.exportButton',
+  'medCrm.members.paymentReminderButton',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {

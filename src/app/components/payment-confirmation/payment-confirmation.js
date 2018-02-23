@@ -4,8 +4,8 @@ import PaymentConfirmationTemplate from './payment-confirmation.html'
 import PaymentConfirmationCtrl from './payment-confirmation-controller';
 
 // Module for showing payment confirmation after visiting Klarna
-angular.module('askCrm.paymentConfirmation', [
-  'askCrm',
+angular.module('medCrm.paymentConfirmation', [
+  'medCrm',
 ])
 
   .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
