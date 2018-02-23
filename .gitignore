@@ -5,6 +5,5 @@ tmp
 .DS_Store
 .idea
 .cache
-app
 assets/config.js
 dist
