@@ -1,10 +1,10 @@
-$bowerPath: "../../app/bower_components";
+$icon-font-path: "../fonts/bootstrap/";
 
-@import "../../app/bower_components/angular-xeditable/dist/css/xeditable.css";
-@import "../../app/bower_components/sweetalert/src/sweetalert.css";
+@import "angular-xeditable/dist/css/xeditable";
+@import "sweetalert/lib/sweet-alert.scss";
 @import "variables";
-@import "../../app/bower_components/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
-@import "../../app/bower_components/angular-loading-bar/build/loading-bar.css";
+@import "bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+@import "angular-loading-bar/build/loading-bar";
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700);
 
 
