@@ -1,5 +1,5 @@
 import angular from 'angular';
-import DashboardAdminTemplate from './dashboard.admin.html'
+import DashboardAdminTemplate from './dashboard.admin.html';
 import DashboardAdminCtrl from './dashboard.admin-controller';
 
 angular.module('medCrm.dashboard.admin', [

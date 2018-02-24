@@ -1,6 +1,6 @@
 import angular from 'angular';
-import PwdReminderResetTemplate from './password-reminder.reset.html'
-import PwdReminderEmailTemplate from './password-reminder.email.html'
+import PwdReminderResetTemplate from './password-reminder.reset.html';
+import PwdReminderEmailTemplate from './password-reminder.email.html';
 
 import PwdReminderEmailCtrl from './password-reminder.email-controller';
 import PwdReminderResetCtrl from './password-reminder.reset-controller';

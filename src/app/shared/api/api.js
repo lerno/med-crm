@@ -7,7 +7,7 @@ angular.module('medCrm.api', [
   'ngCookies',
 ])
 
-  .factory('authInterceptor', ['$rootScope', '$q', '$cookies', function ($rootScope, $q, $cookies) {
+  .factory('authInterceptor', ['$rootScope', '$q', '$cookies', function ApiAuthInterceptorFactory($rootScope, $q, $cookies) {
     return {
       request(config) {
         config.headers = config.headers || {};
@@ -34,11 +34,11 @@ angular.module('medCrm.api', [
     };
   }])
 
-  .config(['$httpProvider', function ($httpProvider) {
+  .config(['$httpProvider', function ApiConfig($httpProvider) {
     $httpProvider.interceptors.push('authInterceptor');
   }])
 
-  .factory('Api', ['$rootScope', '$resource', 'APIURI', function ($rootScope, $resource, APIURI) {
+  .factory('Api', ['$rootScope', '$resource', 'APIURI', function ApiFactory($rootScope, $resource, APIURI) {
     function transformResponseForFileDownload(data, headers) {
       function getFileNameFromHttpHeaders(httpHeaders) {
         const contentDispositionHeader = httpHeaders('Content-Disposition');
@@ -102,7 +102,7 @@ angular.module('medCrm.api', [
           {
             query: {
               transformResponse(data, headers) {
-                response = {};
+                const response = {};
                 response.data = JSON.parse(data);
                 response.headers = headers();
                 return response;
@@ -181,7 +181,7 @@ angular.module('medCrm.api', [
         return $resource(`${APIURI}/payments/:id`, { id: '@id' }, {
           query: {
             transformResponse(data, headers) {
-              response = {};
+              const response = {};
               response.data = JSON.parse(data);
               response.headers = headers();
               return response;

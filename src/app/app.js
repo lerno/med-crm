@@ -1,7 +1,7 @@
-window.addEventListener('unhandledrejection', event => {
-    // Prevent error output on the console:
-    event.preventDefault();
-    console.log('Reason: ' + event.reason);
+window.addEventListener('unhandledrejection', (event) => {
+  // Prevent error output on the console:
+  event.preventDefault();
+  console.log(`Reason: ${event.reason}`);
 });
 
 import angular from 'angular';
@@ -112,7 +112,7 @@ medCrm.constant('APIURI', appConfig.apiUrl)
 
     // Check if we're logged in
     principal.identity()
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to authenticate due to', error);
       });
 

@@ -1,5 +1,5 @@
 import angular from 'angular';
-import MembersImportTemplate from './members.import.html'
+import MembersImportTemplate from './members.import.html';
 import MembersImportCtrl from './members.import-controller';
 
 angular.module('medCrm.members.import', [

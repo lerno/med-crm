@@ -4,23 +4,23 @@ angular.module('kPrincipal', [
   'ngCookies',
 ])
 
-  .factory('principal', ['$rootScope', '$q', '$http', '$timeout', '$cookies', 'Api', function ($rootScope, $q, $http, $timeout, $cookies, Api) {
-    let _identity,
-      _authenticated = false,
-      _isLookingForIdentity = false;
+  .factory('principal', ['$rootScope', '$q', '$http', '$timeout', '$cookies', 'Api', function PrincipalFactory($rootScope, $q, $http, $timeout, $cookies, Api) {
+    let identity;
+    let authenticated = false;
+    let isLookingForIdentity = false;
 
     return {
       isIdentityResolved() {
-        return angular.isDefined(_identity);
+        return angular.isDefined(identity);
       },
       isAuthenticated() {
-        return _authenticated;
+        return authenticated;
       },
       isInRole(role) {
-        if (!_authenticated || !_identity.roles) return false;
+        if (!authenticated || !identity.roles) return false;
 
-        for (let i = 0; i < _identity.roles.length; i++) {
-          if (_identity.roles[i].name === role) {
+        for (let i = 0; i < identity.roles.length; i += 1) {
+          if (identity.roles[i].name === role) {
             return true;
           }
         }
@@ -28,23 +28,23 @@ angular.module('kPrincipal', [
         return false;
       },
       isInAnyRole(roles) {
-        if (!_authenticated || !_identity.roles) return false;
+        if (!authenticated || !identity.roles) return false;
 
-        for (let i = 0; i < roles.length; i++) {
+        for (let i = 0; i < roles.length; i += 1) {
           if (this.isInRole(roles[i])) return true;
         }
 
         return false;
       },
-      authenticate(identity) {
-        _identity = identity;
+      authenticate(_identity) {
+        identity = _identity;
         $rootScope.currentUser = identity;
-        _authenticated = identity != null;
+        authenticated = identity != null;
         $rootScope.$broadcast('userAuthenticationChanged');
       },
       unsetIdentity() {
-        _identity = undefined;
-        _authenticated = false;
+        identity = undefined;
+        authenticated = false;
         $cookies.remove('token');
         $cookies.remove('user_id');
         $rootScope.currentUser = undefined;
@@ -53,11 +53,12 @@ angular.module('kPrincipal', [
       identity(force) {
         const deferred = $q.defer();
 
-        if (force === true) _identity = undefined;
+        if (force === true) identity = undefined;
 
-        // check and see if we have retrieved the identity data from the server. if we have, reuse it by immediately resolving
-        if (angular.isDefined(_identity)) {
-          deferred.resolve(_identity);
+        // check and see if we have retrieved the identity data from the server.
+        // if we have, reuse it by immediately resolving
+        if (angular.isDefined(identity)) {
+          deferred.resolve(identity);
 
           return deferred.promise;
         }
@@ -65,23 +66,23 @@ angular.module('kPrincipal', [
         if (!$cookies.get('user_id')) {
           deferred.reject('You\'re not logged in.');
         } else {
-          if (_isLookingForIdentity === true && force !== true) {
-            const _d = $q.defer();
-            $rootScope.$on('userAuthenticationChanged', () => _d.resolve(_identity));
-            return _d.promise;
+          if (isLookingForIdentity === true && force !== true) {
+            const defer = $q.defer();
+            $rootScope.$on('userAuthenticationChanged', () => defer.resolve(identity));
+            return defer.promise;
           }
 
           const self = this;
-          _isLookingForIdentity = true;
+          isLookingForIdentity = true;
 
           Api.Users().get({ id: $cookies.get('user_id') }, (data) => {
             self.authenticate(data);
-            deferred.resolve(_identity);
-            _isLookingForIdentity = false;
+            deferred.resolve(identity);
+            isLookingForIdentity = false;
           }, (data) => {
             self.unsetIdentity();
             deferred.reject(data);
-            _isLookingForIdentity = false;
+            isLookingForIdentity = false;
           });
         }
 

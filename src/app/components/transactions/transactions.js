@@ -1,6 +1,6 @@
 import angular from 'angular';
-import ExportButtonTemplate from './../export-button/export-button.html'
-import TransactionsTemplate from './transactions.html'
+import ExportButtonTemplate from './../export-button/export-button.html';
+import TransactionsTemplate from './transactions.html';
 import '../export-button/export-button';
 import TransactionsCtrl from './transactions-controller';
 

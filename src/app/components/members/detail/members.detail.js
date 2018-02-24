@@ -1,7 +1,7 @@
 import angular from 'angular';
-import MembersPaymentReminderButtonTemplate from './../payment-reminder-button/members.payment-reminder-button.html'
-import MembersDetailPersonTemplate from './person/members.detail.person.html'
-import MembersDetailTemplate from './members.detail.html'
+import MembersPaymentReminderButtonTemplate from './../payment-reminder-button/members.payment-reminder-button.html';
+import MembersDetailPersonTemplate from './person/members.detail.person.html';
+import MembersDetailTemplate from './members.detail.html';
 import './person/members.detail.person';
 import MembersDetailCtrl from './members.detail-controller';
 

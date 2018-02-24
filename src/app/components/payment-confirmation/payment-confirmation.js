@@ -1,5 +1,5 @@
 import angular from 'angular';
-import PaymentConfirmationTemplate from './payment-confirmation.html'
+import PaymentConfirmationTemplate from './payment-confirmation.html';
 
 import PaymentConfirmationCtrl from './payment-confirmation-controller';
 

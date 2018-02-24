@@ -1,5 +1,5 @@
 import angular from 'angular';
-import PayParseTokenTemplate from './pay.parseToken.html'
+import PayParseTokenTemplate from './pay.parseToken.html';
 
 angular.module('medCrm.pay.parseToken', [
   'medCrm',
