@@ -28,7 +28,7 @@
   "scripts": {
     "prestart": "npm install",
     "lint": "eslint src",
-    "start": "parcel watch src/index.html",
+    "start": "parcel src/index.html",
     "pretest": "npm install",
     "test": "karma start karma.conf.js",
     "test-single-run": "karma start karma.conf.js  --single-run",

@@ -2,10 +2,11 @@
 
 ## Development
 1. Add `src/app/config.js` with the following content
-```JSON
-{
-  "apiUrl": "https://api.url",
-  "debugModeEnabled": true,
-}
+```Javascript
+export default {
+  apiUrl: 'http://localhost:8000/api/v1',
+  debugModeEnabled: true,
+};
 ```
-2. Run `npm start`
+2. Run `docker-compose up`
+3. Visit `http://localhost:1234`
