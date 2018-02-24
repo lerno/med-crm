@@ -26,11 +26,11 @@ angular.module('medCrm.members.detail', [
             controller: 'MembersDetailCtrl',
           },
           'personDetail@members.detail': {
-            template: MembersDetailTemplate,
+            template: MembersDetailPersonTemplate,
             controller: 'MembersDetailPersonCtrl',
           },
           'paymentReminderButton@members.detail': {
-            template: MembersDetailTemplate,
+            template: MembersPaymentReminderButtonTemplate,
             controller: 'MembersPaymentReminderButtonCtrl',
           },
         },

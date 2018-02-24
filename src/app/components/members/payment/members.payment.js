@@ -37,14 +37,14 @@ angular.module('medCrm.members.payment', [
             controller: 'MembersAddPaymentStepOneCtrl',
           },
           'personDetail@members.addPayment.step1': {
-            template: MembersAddPaymentTemplate,
+            template: MembersDetailPersonTemplate,
             controller: 'MembersDetailPersonCtrl',
           },
         },
       })
       .state('members.addPayment.step2', {
         url: '/:payment_method_id?force',
-        template: MembersAddPaymentTemplate,
+        template: MembersAddPaymentStepTwoTemplate,
         controller: 'MembersAddPaymentStepTwoCtrl',
         resolve: {
           paymentInfo: ['$stateParams', 'Api', function ($stateParams, Api) {

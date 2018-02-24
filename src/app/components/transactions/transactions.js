@@ -24,7 +24,7 @@ angular.module('medCrm.payments', [
             controller: 'TransactionsCtrl',
           },
           'exportButton@transactions': {
-            template: TransactionsTemplate,
+            template: ExportButtonTemplate,
             controller: 'ExportButtonCtrl',
           },
         },

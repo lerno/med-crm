@@ -36,11 +36,11 @@ angular.module('medCrm.members.list', [
             controller: 'MembersListCtrl',
           },
           'paymentReminderButton@members.list': {
-            template: MembersListTemplate,
+            template: MembersPaymentReminderButtonTemplate,
             controller: 'MembersPaymentReminderButtonCtrl',
           },
           'exportButton@members.list': {
-            template: MembersListTemplate,
+            template: ExportButtonTemplate,
             controller: 'ExportButtonCtrl',
           },
         },
