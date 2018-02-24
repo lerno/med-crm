@@ -182,7 +182,7 @@ medCrm.constant('APIURI', appConfig.apiUrl)
         },
         loginWithToken(token) {
           const deferred = $q.defer();
-          $http.defaults.headers.common.Authorization = `Bearer: ${token}`;
+          $http.defaults.headers.common.Authorization = `Bearer ${token}`;
 
           var user = Api.Users().get({ id: 'me' }, () => {
             $cookies.put('token', token);
