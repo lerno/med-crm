@@ -84,7 +84,7 @@ medCrm.constant('APIURI', appConfig.apiUrl)
     $rootScope.$on('httpRejection', (event, args) => {
       switch (args.status) {
         case 401:
-          sweet.show('Oops...', 'Du har inte rättighet till denna sida.', 'error');
+          sweet.swal('Oops...', 'Du har inte rättighet till denna sida.', 'error');
           break;
         default:
           var message;
@@ -95,13 +95,13 @@ medCrm.constant('APIURI', appConfig.apiUrl)
             message = `HTTP-status ${args.status}`;
           }
 
-          sweet.show('Oops...', `Någonting gick fel: ${message}`, 'error');
+          sweet.swal('Oops...', `Någonting gick fel: ${message}`, 'error');
           break;
       }
     });
 
     $rootScope.$on('$stateChangePermissionDenied', (event, toState, toParams, options) => {
-      sweet.show({
+      sweet.swal({
         title: 'Oops...',
         text: 'Du har inte rättighet till denna sida.',
         type: 'error',
