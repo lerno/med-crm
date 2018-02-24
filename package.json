@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "description": "CRM System",
-  "repository": "https://bitbucket.org/kontrollanten/ask-crm",
+  "repository": "git@github.com:kontrollanten/med-crm.git",
   "license": "MIT",
   "devDependencies": {
     "babel-plugin-transform-html-import-to-string": "0.0.1",
