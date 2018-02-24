@@ -200,13 +200,13 @@ medCrm.constant('APIURI', appConfig.apiUrl)
 
           $http
             .post(`${APIURI}/authentication`, _user)
-            .success((data, status, headers, config) => {
+            .then(({ data }) => {
               $cookies.put('token', data.token);
               $cookies.put('user_id', data.user.id);
               principal.authenticate(data.user);
               deferred.resolve(true);
             })
-            .error((data, status, headers, config) => {
+            .catch((data, status, headers, config) => {
               $cookies.remove('token');
               deferred.reject(data);
             });
